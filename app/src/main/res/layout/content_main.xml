@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="0"
+    android:background="@drawable/background"
+    android:fitsSystemWindows="true">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_span="2"/>
+    </TableRow>
+
+
+    <TableRow
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <!-- we add graph view to display -->
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/graph"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/small_padding"
+                    android:padding="@dimen/general_margin"
+                    android:background="#ffffff" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="@dimen/sizeButton"
+                android:layout_height="match_parent"
+                android:gravity="right"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/general_margin"
+                android:layout_marginRight="@dimen/small_padding">
+
+                <Button
+                    android:id="@+id/btn_connect"
+                    android:layout_width="@dimen/sizeButton"
+                    android:layout_height="wrap_content"
+                    android:text="Connect"
+                    android:background="@drawable/clicked_button"
+                    android:textColor="@color/colorAccent"/>
+
+                <Button
+                    android:id="@+id/btn_saveData"
+                    android:layout_width="@dimen/sizeButton"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:background="@drawable/clicked_button"
+                    android:textColor="@color/colorAccent"/>
+
+                <Button
+                    android:id="@+id/btn_reset"
+                    android:layout_width="@dimen/sizeButton"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:text="Reset"
+                    android:background="@drawable/clicked_button"
+                    android:textColor="@color/colorAccent"/>
+                <Button
+                    android:id="@+id/btn_close"
+                    android:layout_width="@dimen/sizeButton"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:text="Close"
+                    android:background="@drawable/clicked_button"
+                    android:textColor="@color/colorAccent"/>
+            </LinearLayout>
+
+    </TableRow>
+</TableLayout>
