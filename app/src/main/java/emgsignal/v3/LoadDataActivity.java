@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import emgsignal.v3.R;
 
@@ -24,6 +25,7 @@ public class LoadDataActivity extends AppCompatActivity {
 
     private TextView show_data, nameFile;
     private Button graphing;
+    private ArrayList<String> values;
 
 
     @Override
@@ -34,14 +36,16 @@ public class LoadDataActivity extends AppCompatActivity {
         show_data = findViewById(R.id.show_data);
         graphing = findViewById(R.id.graphing);
 
-        Intent getData = getIntent();
+        final Intent getData = getIntent();
         nameFile.setText(getData.getStringExtra("Namefile"));
         show_data.setText(getData.getStringExtra("Data"));
+        values = getData.getStringArrayListExtra("Array");
 
         graphing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoadDataActivity.this,PlotDataActivity.class);
+                intent.putStringArrayListExtra("Values",values);
                 startActivity(intent);
             }
         });
