@@ -1,4 +1,4 @@
-package emgsignal.v3;
+package emgsignal.v3.filter;
 
 public class IIR_Filter {
 //    private double[] B_coeff = {0.145869755195673, -0.925285841831314, 2.69694235352519, -4.79411043461389, 5.75316833546117, -4.79411043461389, 2.69694235352519,

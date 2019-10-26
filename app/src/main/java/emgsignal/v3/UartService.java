@@ -42,17 +42,17 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service for managing connection and data communication with a GATT server hosted on a
+ * Service for managing connection and emgsignal.v3.data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
 public class UartService extends Service {
-    private final static String TAG = UartService.class.getSimpleName();
+    public final static String TAG = UartService.class.getSimpleName();
 
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
-    private int mConnectionState = STATE_DISCONNECTED;
+    BluetoothManager mBluetoothManager;
+    BluetoothAdapter mBluetoothAdapter;
+    String mBluetoothDeviceAddress;
+    BluetoothGatt mBluetoothGatt;
+    int mConnectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -76,7 +76,7 @@ public class UartService extends Service {
     public static final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID TX_CHAR_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
 
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+    public final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
                 @Override
                 public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                     String intentAction;
@@ -138,12 +138,12 @@ public class UartService extends Service {
                 }
             };
 
-    private void broadcastUpdate(final String action) {
+    public void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private void broadcastUpdate(final String action,
+    public void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
@@ -179,7 +179,7 @@ public class UartService extends Service {
         return super.onUnbind(intent);
     }
 
-    private final IBinder mBinder = new LocalBinder();
+    public final IBinder mBinder = new LocalBinder();
 
 
      /** Initializes a reference to the local Bluetooth adapter.
@@ -358,7 +358,7 @@ public class UartService extends Service {
         Log.d(TAG, "write TXchar - status=" + status);
     }
 
-    private void showMessage(String msg) {
+    public void showMessage(String msg) {
         Log.e(TAG, msg);
     }
 

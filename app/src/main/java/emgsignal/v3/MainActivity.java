@@ -31,7 +31,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
@@ -43,6 +42,9 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import emgsignal.v3.data.Constants;
+import emgsignal.v3.filter.IIR_Filter;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -121,12 +123,12 @@ public class MainActivity extends AppCompatActivity
         btnConnectDisconnect=  findViewById(R.id.btn_connect);
         service_init();
 
-        // Handle Save data function
+        // Handle Save emgsignal.v3.data function
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(data1Save.size() == 0)
-                { Toast.makeText(MainActivity.this, "No data available yet.", Toast.LENGTH_SHORT).show();}
+                { Toast.makeText(MainActivity.this, "No emgsignal.v3.data available yet.", Toast.LENGTH_SHORT).show();}
                 else {
                     isSaving = true;
                     isRunning = false;
@@ -200,7 +202,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initGraphMaternal(){
         // we get graph view instance
-        GraphView graph =  findViewById(R.id.graph);
+        GraphView graph =  findViewById(R.id.realtime_chart);
 
         series_maternal = new LineGraphSeries();
         series_maternal.setColor(Color.BLUE);
@@ -318,9 +320,9 @@ public class MainActivity extends AppCompatActivity
 
                     // IIR Bandpass notchpass filter
                     filter_out_putpoint_envelope = filter_out_putpoint_envelope/1000;
-                    data1Save.add(filter_out_putpoint_envelope);     // fill save array for ECG signal raw data
+                    data1Save.add(filter_out_putpoint_envelope);     // fill save array for ECG signal raw emgsignal.v3.data
 
-                    // plot the filtered data points or raw data
+                    // plot the filtered emgsignal.v3.data points or raw emgsignal.v3.data
                     lastX1=lastX1+  1/fs;
                     series_maternal.appendData(new DataPoint(lastX1,filter_out_putpoint_envelope), true, 10000);
                     Log.d(TAG, lastX1++ + ", " + filter_out_putpoint_envelope);
@@ -514,16 +516,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    //Handle menu section <
-    /*@Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -558,6 +550,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.menu_saved_data) {
             Intent intent = new Intent(MainActivity.this, ListFilesActivity.class);
             startActivity(intent);
+            //go to ListFilesActivity.java
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
