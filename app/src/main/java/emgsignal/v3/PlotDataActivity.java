@@ -1,5 +1,5 @@
 /*Drawing a line chart showing saved data again
-  Here, I'm using MP*/
+  Here, I'm using MPandroidChart Library, But max data points of line chart are just 1000 data points*/
 package emgsignal.v3;
 
 import android.content.Intent;
@@ -60,6 +60,8 @@ public class PlotDataActivity extends AppCompatActivity {
         mChart = findViewById(R.id.chart);
         mChart.setTouchEnabled(true);
         mChart.setPinchZoom(true);
+        mChart.setDragEnabled(true);
+        mChart.setScaleEnabled(true);
 
         ArrayList<Entry> values = new ArrayList<>();
 
