@@ -19,31 +19,57 @@
 
 
     <TableRow
-
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-            <LinearLayout
-                android:id="@+id/linearLayout3"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom">
+
+
+            <com.androidplot.xy.XYPlot
+                android:id="@+id/plot"
+                style="@style/APDefacto.Dark"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <!-- we add graph view to display -->
-                <com.jjoe64.graphview.GraphView
-                    android:id="@+id/realtime_chart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/small_padding"
-                    android:padding="@dimen/general_margin"
-                    android:background="#ffffff" />
-            </LinearLayout>
+                android:layout_height="match_parent"
+                />
+            <TextView
+                android:id="@+id/domain_series"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Datapoint"
+                android:paddingRight="@dimen/small_padding"
+                android:textColor="@color/yellow"
+                android:textSize="@dimen/text_small"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:paddingBottom="5dp"
+                />
+
+            <TextView
+                android:id="@+id/vertical_series"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Amplitude (V)"
+                android:textColor="@color/yellow"
+                android:textSize="@dimen/text_small"
+                android:layout_alignParentTop="true"
+                android:paddingLeft="@dimen/small_padding"
+                android:paddingTop="5dp"/>
+
+        </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
                 android:layout_width="@dimen/sizeButton"
                 android:layout_height="match_parent"
-                android:gravity="right"
+                android:gravity="bottom"
+                android:layout_marginBottom="@dimen/general_margin"
                 android:orientation="vertical"
-                android:layout_marginTop="@dimen/general_margin"
+
                 android:layout_marginRight="@dimen/small_padding">
 
                 <Button
@@ -66,7 +92,7 @@
                     android:id="@+id/btn_reset"
                     android:layout_width="@dimen/sizeButton"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="50dp"
+
                     android:text="Reset"
                     android:background="@drawable/clicked_button"
                     android:textColor="@color/colorAccent"/>
@@ -74,7 +100,6 @@
                     android:id="@+id/btn_close"
                     android:layout_width="@dimen/sizeButton"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="50dp"
                     android:text="Close"
                     android:background="@drawable/clicked_button"
                     android:textColor="@color/colorAccent"/>

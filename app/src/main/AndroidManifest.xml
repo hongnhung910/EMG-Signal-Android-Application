@@ -16,14 +16,10 @@
         android:screenOrientation="landscape"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".PlotDataActivity"
-            android:screenOrientation="landscape">
-
-        </activity>
+        <activity android:name=".Loadgraph"></activity>
         <activity
             android:name=".SplashScreen"
-            android:label="@string/app_name"
-            android:screenOrientation="landscape">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,29 +27,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoadDataActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="landscape"></activity>
+            android:name=".MainActivity" />
         <activity
             android:name=".DeviceListActivity"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Dialog" />
-
         <activity
-            android:name=".ListFilesActivity"
-            android:screenOrientation="landscape" />
-
+            android:name=".ListFilesActivity" />
+        <activity
+            android:name=".SaveData" />
 
         <service
             android:name=".UartService"
             android:enabled="true"
             android:exported="true" />
-
     </application>
 
 </manifest>

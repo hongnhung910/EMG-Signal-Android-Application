@@ -20,16 +20,18 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ListFilesActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 100;
     ArrayList<String> myList;
     ListView listview;
-    ArrayList<String> line;
+    ArrayList<String> ArrayData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,29 +75,47 @@ public class ListFilesActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/EMG_Data/"+ myList.get(position));
-                Toast.makeText(ListFilesActivity.this,file + "",Toast.LENGTH_LONG).show();
-                StringBuilder text = new StringBuilder();
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(file));
-                    line = new ArrayList<>();
-                    int i=0;
-                    while (br.readLine() != null) {
-                        text.append(br.readLine());
-                        text.append("\n");
-                        line.add(i,br.readLine());
-                    }
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                ArrayData = ReadFile(file);
+
+
+                double[] timedata = new double[ArrayData.size()];
+                int[] domainLabels = new int[ArrayData.size()];
+
+                for (int i=0;i<ArrayData.size();i++) {
+                    timedata[i] = (Double.valueOf(ArrayData.get(i)));
+                    domainLabels[i] = i;
                 }
-                Intent intent = new Intent(ListFilesActivity.this,LoadDataActivity.class);
-                intent.putExtra("Data",text.toString());
+                Log.i("CHECKING LONG", "onItemClick: " + timedata.length);
+                Intent intent = new Intent(ListFilesActivity.this,Loadgraph.class);
                 intent.putExtra("Namefile",myList.get(position)+"");
-                intent.putStringArrayListExtra("Array",line);
+                intent.putExtra("TimeData",timedata);
+                intent.putExtra("Length",ArrayData.size());
+                intent.putExtra("DomainLabels",domainLabels);
                 startActivity(intent);
             }
         });
     }
+
+    private ArrayList<String> ReadFile (File file)
+    {
+
+        String line = null;
+        ArrayList<String> lines = new ArrayList<String>();
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+
+            while ((line = bufferedReader.readLine()) != null)
+            {
+                lines.add(line);
+            }
+
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
+        }
+
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(ListFilesActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
         if (result == PackageManager.PERMISSION_GRANTED) {
@@ -124,5 +144,7 @@ public class ListFilesActivity extends AppCompatActivity {
                 break;
         }
     }
+
+
 }
 

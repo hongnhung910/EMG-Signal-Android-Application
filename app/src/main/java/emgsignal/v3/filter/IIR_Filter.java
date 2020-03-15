@@ -41,7 +41,7 @@ public class IIR_Filter {
 
         return output;
     }
-    // for 100Hz filter
+    // for 10Hz filter
     public double filter10Hz(double[] input, double[] priorOutputs) {
         double output = 0;
 

@@ -1,5 +1,6 @@
 package emgsignal.v3;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -11,9 +12,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -33,13 +36,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.androidplot.util.Redrawer;
+import com.androidplot.xy.AdvancedLineAndPointRenderer;
+import com.androidplot.xy.BoundaryMode;
+import com.androidplot.xy.StepMode;
+import com.androidplot.xy.XYGraphWidget;
+import com.androidplot.xy.XYPlot;
+import com.androidplot.xy.XYSeries;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -66,6 +78,8 @@ public class MainActivity extends AppCompatActivity
     byte[] txValue;
     int fs=1000;
     double[] emg = new double[30];
+    ArrayList<Double> EMG_series = new ArrayList();
+    int indexEMG = 0;
 
 
     private LineGraphSeries<DataPoint> series_maternal;
@@ -86,9 +100,15 @@ public class MainActivity extends AppCompatActivity
 
     SaveData saveData = new SaveData();
 
+    Redrawer redrawer;
+    XYPlot plot;
+    EMGModel emgSeries;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
         //Handle menu section
@@ -104,9 +124,22 @@ public class MainActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
         }
 
+        //Set up graph
+        {
+
+            plot = findViewById(R.id.plot);
+            plot.setDomainBoundaries(0, 10000, BoundaryMode.FIXED);
+            plot.setDomainStep(StepMode.SUBDIVIDE, 11);
+            plot.setDomainStep(StepMode.SUBDIVIDE, 11);
+            plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).
+                    setFormat(new DecimalFormat("0"));
+            plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.LEFT).
+                    setFormat(new DecimalFormat("#0.00"));
+        }
+
         deviceListActivity = new DeviceListActivity();
 
-        initGraphMaternal();
+        //initGraphMaternal();
 
         btnSaveData = findViewById(R.id.btn_saveData);
         btnClose = findViewById(R.id.btn_close);
@@ -120,27 +153,36 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        btnConnectDisconnect=  findViewById(R.id.btn_connect);
+        btnConnectDisconnect=findViewById(R.id.btn_connect);
         service_init();
 
         // Handle Save emgsignal.v3.data function
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if(data1Save.size() == 0)
                 { Toast.makeText(MainActivity.this, "No emgsignal.v3.data available yet.", Toast.LENGTH_SHORT).show();}
                 else {
                     isSaving = true;
                     isRunning = false;
-                    saveData.save(data1Save);
+                    emgSeries.stop();
+                    int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    // If do not grant write external storage permission.
+                    if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                        // Request user to grant write external storage permission.
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                    }
+                    saveData.save(data1Save, MainActivity.this);
                     Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
                     isSaving = false;
                     isRunning = true;
                     mService.disconnect();
                     data1Save.clear();
-                    series_maternal.resetData(new DataPoint[]{});
-                    initGraphMaternal();
                     btnConnectDisconnect.setText("Connect");
+                    plot.clear();
+                    //series_maternal.resetData(new DataPoint[]{});
+                    //initGraphMaternal();
                 }
             }
         });
@@ -165,7 +207,11 @@ public class MainActivity extends AppCompatActivity
 
                     } else {
                         //Disconnect button pressed
+
+                        emgSeries.stop();
                         mService.disconnect();
+                        btnConnectDisconnect.setText("Connect");
+
                     }
                 }
             }
@@ -183,12 +229,13 @@ public class MainActivity extends AppCompatActivity
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isRunning = false;
                 mService.disconnect();
-                series_maternal.resetData(new DataPoint[]{});
-                initGraphMaternal();
+                //series_maternal.resetData(new DataPoint[]{});
+                //initGraphMaternal();
                 btnConnectDisconnect.setText("Connect");
-                /*mService.initialize();*/
+                resetData();
+                mService.initialize();
+                emgSeries.stop();
 
             }
         });
@@ -197,10 +244,13 @@ public class MainActivity extends AppCompatActivity
     private void resetData(){
         isRunning = false;
         data1Save.clear();
-
+        plot.clear();
+        EMG_series.clear();
     }
 
-    private void initGraphMaternal(){
+
+    //Create graph
+   /* private void initGraphMaternal(){
         // we get graph view instance
         GraphView graph =  findViewById(R.id.realtime_chart);
 
@@ -235,8 +285,8 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-        graph.setTitle("EMG Signal");
-    }
+        graph.setTitle("Time domain signal");
+    }*/
 
 
 
@@ -256,7 +306,7 @@ public class MainActivity extends AppCompatActivity
 
         }
     };
-    // ham doc du lieu la ham nay day:
+    // Ham doc du lieu
     private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, final Intent intent) {
@@ -268,8 +318,10 @@ public class MainActivity extends AppCompatActivity
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_CONNECT_MSG");
                         btnConnectDisconnect.setText("Disconnect");
+
                         if(!isSaving) {Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG).show();}
                         mState = UART_PROFILE_CONNECTED;
+
                     }
                 });
             }
@@ -284,6 +336,8 @@ public class MainActivity extends AppCompatActivity
 
                         mService.close();mState = UART_PROFILE_DISCONNECTED;
                         isRunning = false;
+                        emgSeries.stop();
+
                     }
                 });
             }
@@ -297,12 +351,14 @@ public class MainActivity extends AppCompatActivity
             // ham nay la ham nhan a xu l
             if (action.equals(UartService.ACTION_DATA_AVAILABLE)) {
                 txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
-                Log.d(TAG,":"+txValue.length);
-                // firstDataBuffer = new double[3000];
-                for (int i = 0; i < 30; i++) {
-                    emg[i] = (txValue[i*2]&0xff&0x3f) + (txValue[i*2+1]&0xff&0x3f)*64;
-                    // for 50Hz filter
 
+                // firstDataBuffer = new double[3000];
+
+
+                for (int i = 0; i < 20; i++) {
+                    emg[i] = (txValue[i*2]&0xff&0x3f) + (txValue[i*2+1]&0xff&0x3f)*64;
+
+                    // for 50Hz filter
                     filter_input1 = filter.update_input_filter_array50Hz(filter_input1, emg[i]);
                     double filtered_point_emg = filter.filter50Hz(filter_input1, filter_output1);
                     filter_output1 = filter.update_output_filter_array50Hz(filter_output1, filtered_point_emg);
@@ -320,14 +376,20 @@ public class MainActivity extends AppCompatActivity
 
                     // IIR Bandpass notchpass filter
                     filter_out_putpoint_envelope = filter_out_putpoint_envelope/1000;
-                    data1Save.add(filter_out_putpoint_envelope);     // fill save array for ECG signal raw emgsignal.v3.data
+                         // fill save array for EMG signal raw emgsignal.v3.data
 
                     // plot the filtered emgsignal.v3.data points or raw emgsignal.v3.data
-                    lastX1=lastX1+  1/fs;
+                    /*lastX1=lastX1+  1/fs;
                     series_maternal.appendData(new DataPoint(lastX1,filter_out_putpoint_envelope), true, 10000);
-                    Log.d(TAG, lastX1++ + ", " + filter_out_putpoint_envelope);
+                    Log.d(TAG, lastX1++ + ", " + filter_out_putpoint_envelope);*/
+                    data1Save.add(filter_out_putpoint_envelope);
+                    EMG_series.add(filter_out_putpoint_envelope);
+                    Log.i(TAG, "run: ORDER 000..........");
+
                 }
-                //      }
+
+
+
             }
             //*********************//
             if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)){
@@ -343,8 +405,8 @@ public class MainActivity extends AppCompatActivity
     private void service_init() {
         Intent bindIntent = new Intent(this, UartService.class);
         bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-
         LocalBroadcastManager.getInstance(this).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
+        Log.i(TAG, "service_init: here............");
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
@@ -418,10 +480,10 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intent, Constants.REQUEST_BLUETOOTH_ENABLE_CODE);
         }
         registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
-        if (mService != null) {
+        /*if (mService != null) {
             // final boolean result = mService.connect(mDevice.getAddress());
             //  Log.d(TAG, "Connect request result=" + result);
-        }
+        }*/
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -446,12 +508,21 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG,"Connect Success");
                     resetData();
                     isRunning = true;
+                    emgSeries = new EMGModel(10000,1000,EMG_series);
+                    MyFadeFormatter formatter =new MyFadeFormatter(10000);
+                    formatter.setLegendIconEnabled(false);
+                    plot.addSeries(emgSeries, formatter);
+                    emgSeries.start(new WeakReference<>(plot.getRenderer(AdvancedLineAndPointRenderer.class)));
+                    redrawer = new Redrawer(plot, 1000, true);
+
 
                 }
                 if (resultCode == Activity.RESULT_CANCELED)
                 {
-                    initGraphMaternal();
-                    series_maternal.resetData(new DataPoint[]{});
+                    //initGraphMaternal();
+                    //series_maternal.resetData(new DataPoint[]{});
+                    resetData();
+                    emgSeries.stop();
                 }
             }
             break;
@@ -557,5 +628,127 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
     //> Handle menu section
+
+    //Create EMG model
+    public static class EMGModel implements XYSeries {
+
+        private final Number[] data;
+        private final long delayMs;
+        private final Thread thread;
+        public boolean keepRunning;
+        private int latestIndex;
+        private int index = 0;
+
+        private WeakReference<AdvancedLineAndPointRenderer> rendererRef;
+
+        /**
+         *
+         * @param size Sample size contained within this model
+         * @param updateFreqHz Frequency at which new samples are added to the model
+         */
+        EMGModel(int size, int updateFreqHz, final ArrayList<Double> emg) {
+            data = new Number[size];
+            for(int i = 0; i < data.length; i++) {
+                data[i] = 0;
+            }
+
+            // translate hz into delay (ms):
+            delayMs = 1000 / updateFreqHz;
+
+
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (keepRunning) {
+                            Log.i(TAG, "run: ORDER 1..........");
+
+                                if (latestIndex >= data.length) {
+                                    latestIndex = 0;
+                                }
+                                if (emg.size()>=100) {
+                                    data[latestIndex] = emg.get(index++); //(Math.random() * 10) + 3;
+                                } else {
+                                    data[latestIndex] = 0;
+                                    latestIndex = 0;
+                                }
+
+                                if (latestIndex < data.length - 1) {
+                                    // null out the point immediately following i, to disable
+                                    // connecting i and i+1 with a line:
+                                    data[latestIndex + 1] = null;
+                                }
+
+                                if (rendererRef.get() != null) {
+                                    rendererRef.get().setLatestIndex(latestIndex);
+                                    Thread.sleep(delayMs);
+                                } else {
+                                    keepRunning = false;
+                                }
+                                latestIndex++;
+                        }
+                    } catch (InterruptedException e) {
+                        keepRunning = false;
+                    }
+                }
+            });
+        }
+
+        void stop() {
+            keepRunning = false;
+            latestIndex = 0;
+        }
+
+        void start(final WeakReference<AdvancedLineAndPointRenderer> rendererRef) {
+            this.rendererRef = rendererRef;
+            keepRunning = true;
+            thread.start();
+        }
+
+        @Override
+        public int size() {
+            return data.length;
+        }
+        @Override
+        public Number getX(int index) {
+            return index;
+        }
+        @Override
+        public Number getY(int index) {
+            return data[index];
+        }
+        @Override
+        public String getTitle() {
+            return "Signal";
+        }
+
+    }
+
+
+    public static class MyFadeFormatter extends AdvancedLineAndPointRenderer.Formatter {
+
+        private int trailSize;
+
+        MyFadeFormatter(int trailSize) {
+            this.trailSize = trailSize;
+        }
+
+        @Override
+        public Paint getLinePaint(int thisIndex, int latestIndex, int seriesSize) {
+            // offset from the latest index:
+            int offset;
+            if(thisIndex > latestIndex) {
+                offset = (latestIndex + (seriesSize - thisIndex));
+            } else {
+                offset =  (latestIndex - thisIndex);
+            }
+
+            float scale = 255f / trailSize;
+            int alpha = (int) (255 - (offset * scale));
+            //int alpha = (int) (300 - (offset * scale));
+            getLinePaint().setAlpha(alpha > 0 ? alpha : 0);
+            return getLinePaint();
+        }
+    }
 
 }
