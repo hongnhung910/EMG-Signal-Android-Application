@@ -18,7 +18,9 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -34,11 +36,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.AdvancedLineAndPointRenderer;
 import com.androidplot.xy.BoundaryMode;
+import com.androidplot.xy.PanZoom;
 import com.androidplot.xy.StepMode;
 import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
@@ -76,9 +80,8 @@ public class MainActivity extends AppCompatActivity
     private Button btnConnectDisconnect,btnSaveData,btnClose,btnReset;
     private DeviceListActivity deviceListActivity;
     byte[] txValue;
-    int fs=1000;
+    int fs=975;
     double[] emg = new double[30];
-    ArrayList<Double> EMG_series = new ArrayList();
     int indexEMG = 0;
 
 
@@ -98,17 +101,19 @@ public class MainActivity extends AppCompatActivity
     double[] filter_input_for_envelope =  {0, 0, 0, 0, 0};
     double[] filter_output_for_envelope = {0, 0, 0, 0};
 
-    SaveData saveData = new SaveData();
+    private SaveData saveData = new SaveData();
 
-    Redrawer redrawer;
-    XYPlot plot;
-    EMGModel emgSeries;
+
+    private TextView timerValue;
+    private Handler customHandler = new Handler();
+    private long startTime = 0L;
+    long timeInMilliseconds = 0L;
+    long timeSwapBuff = 0L;
+    long updatedTime = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
         //Handle menu section
@@ -124,26 +129,13 @@ public class MainActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        //Set up graph
-        {
-
-            plot = findViewById(R.id.plot);
-            plot.setDomainBoundaries(0, 10000, BoundaryMode.FIXED);
-            plot.setDomainStep(StepMode.SUBDIVIDE, 11);
-            plot.setDomainStep(StepMode.SUBDIVIDE, 11);
-            plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).
-                    setFormat(new DecimalFormat("0"));
-            plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.LEFT).
-                    setFormat(new DecimalFormat("#0.00"));
-        }
-
         deviceListActivity = new DeviceListActivity();
 
-        //initGraphMaternal();
+        initGraphMaternal();
 
         btnSaveData = findViewById(R.id.btn_saveData);
-        btnClose = findViewById(R.id.btn_close);
         btnReset = findViewById(R.id.btn_reset);
+        timerValue = findViewById(R.id.timerValue);
         mBtAdapter = BluetoothAdapter.getDefaultAdapter(); // lay gia tri default ban dau la null
 
         // vơi gia tri ban dau la null, bluetooth khong hoat dong
@@ -160,29 +152,33 @@ public class MainActivity extends AppCompatActivity
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if(data1Save.size() == 0)
-                { Toast.makeText(MainActivity.this, "No emgsignal.v3.data available yet.", Toast.LENGTH_SHORT).show();}
+                { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
                 else {
-                    isSaving = true;
-                    isRunning = false;
-                    emgSeries.stop();
-                    int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                    // If do not grant write external storage permission.
-                    if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                        // Request user to grant write external storage permission.
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                    if (btnSaveData.getText().equals("Save")) {
+                        data1Save.clear();
+                        btnSaveData.setText("Saving");
+                        isSaving = true;
+                        startTime = SystemClock.uptimeMillis();
+                        customHandler.postDelayed(updateTimerThread, 0);
                     }
-                    saveData.save(data1Save, MainActivity.this);
-                    Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
-                    isSaving = false;
-                    isRunning = true;
-                    mService.disconnect();
-                    data1Save.clear();
-                    btnConnectDisconnect.setText("Connect");
-                    plot.clear();
-                    //series_maternal.resetData(new DataPoint[]{});
-                    //initGraphMaternal();
+                    else {
+                        timeSwapBuff += timeInMilliseconds;
+                        customHandler.removeCallbacks(updateTimerThread);
+                            int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                            // If do not grant write external storage permission.
+                            if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                                // Request user to grant write external storage permission.
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                            }
+                            saveData.save(data1Save, MainActivity.this);
+                            Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
+                            mService.disconnect();
+                            btnConnectDisconnect.setText("Connect");
+                            btnSaveData.setText("Save");
+                            resetData();
+                            initGraphMaternal();
+                    }
                 }
             }
         });
@@ -192,8 +188,6 @@ public class MainActivity extends AppCompatActivity
         btnConnectDisconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 if (!mBtAdapter.isEnabled()) {
                     Log.i(TAG, "onClick - BT not enabled yet");
                     Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -207,22 +201,10 @@ public class MainActivity extends AppCompatActivity
 
                     } else {
                         //Disconnect button pressed
-
-                        emgSeries.stop();
                         mService.disconnect();
                         btnConnectDisconnect.setText("Connect");
-
                     }
                 }
-            }
-        });
-
-        //Close App
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-                System.exit(0);
             }
         });
 
@@ -230,48 +212,51 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 mService.disconnect();
-                //series_maternal.resetData(new DataPoint[]{});
-                //initGraphMaternal();
                 btnConnectDisconnect.setText("Connect");
                 resetData();
-                mService.initialize();
-                emgSeries.stop();
-
+                initGraphMaternal();
+                /*mService.initialize();*/
             }
         });
     }
 
     private void resetData(){
         isRunning = false;
+        isSaving = false;
         data1Save.clear();
-        plot.clear();
-        EMG_series.clear();
+        series_maternal.resetData(new DataPoint[]{});
+        //initGraphMaternal();
+        timerValue.setText("Timer: 00s");
     }
 
 
     //Create graph
-   /* private void initGraphMaternal(){
+    private void initGraphMaternal(){
         // we get graph view instance
         GraphView graph =  findViewById(R.id.realtime_chart);
-
+        graph.setTitleColor(Color.BLUE);
+        graph.setTitle("Real time Signal");
         series_maternal = new LineGraphSeries();
-        series_maternal.setColor(Color.BLUE);
+        series_maternal.setColor(Color.RED);
+        series_maternal.setThickness(2);
         graph.addSeries(series_maternal);
 
         Viewport viewport = graph.getViewport();
         viewport.setXAxisBoundsManual(true);
         viewport.setYAxisBoundsManual(true);
-        viewport.setMinY(0);    // set de test 0
-        viewport.setMaxY(5);     // set 4500
+        viewport.setMinY(0);
+        viewport.setMaxY(3500);
         viewport.setMinX(0);
         viewport.setMaxX(10000);
         viewport.setScrollable(true);
         viewport.setScalable(true);
-
         graph.getGridLabelRenderer().setNumHorizontalLabels(10);
-        graph.getGridLabelRenderer().setNumVerticalLabels(10);
-        //graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-        //graph.getGridLabelRenderer().setVerticalLabelsVisible(false);
+        graph.getGridLabelRenderer().setNumVerticalLabels(5);
+        graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
+        graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
+
+
+        graph.getGridLabelRenderer().setLabelsSpace(5);
 
         graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
             @Override
@@ -281,14 +266,11 @@ public class MainActivity extends AppCompatActivity
                     return super.formatLabel(value, isValueX);
                 } else {
                     // show currency for y values
-                    return super.formatLabel(value, isValueX) + "V";
+                    return super.formatLabel(value, isValueX);
                 }
             }
         });
-        graph.setTitle("Time domain signal");
-    }*/
-
-
+    }
 
     //UART service connected/disconnected
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -336,7 +318,6 @@ public class MainActivity extends AppCompatActivity
 
                         mService.close();mState = UART_PROFILE_DISCONNECTED;
                         isRunning = false;
-                        emgSeries.stop();
 
                     }
                 });
@@ -355,41 +336,40 @@ public class MainActivity extends AppCompatActivity
                 // firstDataBuffer = new double[3000];
 
 
-                for (int i = 0; i < 20; i++) {
-                    emg[i] = (txValue[i*2]&0xff&0x3f) + (txValue[i*2+1]&0xff&0x3f)*64;
+                for (int i = 0; i < 10; i++) {
+                    emg[i] = (txValue[i*4+2]&0xff&0x3f) + (txValue[i*4+3]&0xff&0x3f)*64;
 
                     // for 50Hz filter
                     filter_input1 = filter.update_input_filter_array50Hz(filter_input1, emg[i]);
                     double filtered_point_emg = filter.filter50Hz(filter_input1, filter_output1);
                     filter_output1 = filter.update_output_filter_array50Hz(filter_output1, filtered_point_emg);
 
-                    filtered_point_emg=filtered_point_emg-1650;
+                    /*filtered_point_emg = filtered_point_emg-1650;
                     if(filtered_point_emg<0)
                     {
                         filtered_point_emg=-filtered_point_emg;
-                    }
+                    }*/
 
                     // for envelope low pass 10Hz
-                    filter.update_input_filter_array10Hz(filter_input_for_envelope,filtered_point_emg);
+                    /*filter.update_input_filter_array10Hz(filter_input_for_envelope,filtered_point_emg);
                     double filter_out_putpoint_envelope=filter.filter10Hz(filter_input_for_envelope,filter_output_for_envelope);
                     filter_output_for_envelope=filter.update_output_filter_array10Hz(filter_output_for_envelope,filter_out_putpoint_envelope);
 
                     // IIR Bandpass notchpass filter
-                    filter_out_putpoint_envelope = filter_out_putpoint_envelope/1000;
+                    filter_out_putpoint_envelope = filter_out_putpoint_envelope/1000;*/
                          // fill save array for EMG signal raw emgsignal.v3.data
 
                     // plot the filtered emgsignal.v3.data points or raw emgsignal.v3.data
-                    /*lastX1=lastX1+  1/fs;
-                    series_maternal.appendData(new DataPoint(lastX1,filter_out_putpoint_envelope), true, 10000);
+                    /*
+
                     Log.d(TAG, lastX1++ + ", " + filter_out_putpoint_envelope);*/
-                    data1Save.add(filter_out_putpoint_envelope);
-                    EMG_series.add(filter_out_putpoint_envelope);
-                    Log.i(TAG, "run: ORDER 000..........");
-
+                    /*data1Save.add(filter_out_putpoint_envelope);
+                    EMG_series.add(filter_out_putpoint_envelope);*/
+                    data1Save.add(filtered_point_emg);
+                    lastX1=lastX1+  1/fs;
+                    series_maternal.appendData(new DataPoint(lastX1,filtered_point_emg), true, 10000);
+                    Log.d(TAG, lastX1++ + ", " + filtered_point_emg);
                 }
-
-
-
             }
             //*********************//
             if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)){
@@ -399,9 +379,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-
     };
-
     private void service_init() {
         Intent bindIntent = new Intent(this, UartService.class);
         bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -480,10 +458,10 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intent, Constants.REQUEST_BLUETOOTH_ENABLE_CODE);
         }
         registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
-        /*if (mService != null) {
+        if (mService != null) {
             // final boolean result = mService.connect(mDevice.getAddress());
             //  Log.d(TAG, "Connect request result=" + result);
-        }*/
+        }
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -508,21 +486,12 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG,"Connect Success");
                     resetData();
                     isRunning = true;
-                    emgSeries = new EMGModel(10000,1000,EMG_series);
-                    MyFadeFormatter formatter =new MyFadeFormatter(10000);
-                    formatter.setLegendIconEnabled(false);
-                    plot.addSeries(emgSeries, formatter);
-                    emgSeries.start(new WeakReference<>(plot.getRenderer(AdvancedLineAndPointRenderer.class)));
-                    redrawer = new Redrawer(plot, 1000, true);
-
-
                 }
                 if (resultCode == Activity.RESULT_CANCELED)
                 {
-                    //initGraphMaternal();
-                    //series_maternal.resetData(new DataPoint[]{});
+                    /*initGraphMaternal();
+                    series_maternal.resetData(new DataPoint[]{});*/
                     resetData();
-                    emgSeries.stop();
                 }
             }
             break;
@@ -629,126 +598,17 @@ public class MainActivity extends AppCompatActivity
     }
     //> Handle menu section
 
-    //Create EMG model
-    public static class EMGModel implements XYSeries {
+    private Runnable updateTimerThread = new Runnable() {
 
-        private final Number[] data;
-        private final long delayMs;
-        private final Thread thread;
-        public boolean keepRunning;
-        private int latestIndex;
-        private int index = 0;
-
-        private WeakReference<AdvancedLineAndPointRenderer> rendererRef;
-
-        /**
-         *
-         * @param size Sample size contained within this model
-         * @param updateFreqHz Frequency at which new samples are added to the model
-         */
-        EMGModel(int size, int updateFreqHz, final ArrayList<Double> emg) {
-            data = new Number[size];
-            for(int i = 0; i < data.length; i++) {
-                data[i] = 0;
-            }
-
-            // translate hz into delay (ms):
-            delayMs = 1000 / updateFreqHz;
-
-
-            thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (keepRunning) {
-                            Log.i(TAG, "run: ORDER 1..........");
-
-                                if (latestIndex >= data.length) {
-                                    latestIndex = 0;
-                                }
-                                if (emg.size()>=100) {
-                                    data[latestIndex] = emg.get(index++); //(Math.random() * 10) + 3;
-                                } else {
-                                    data[latestIndex] = 0;
-                                    latestIndex = 0;
-                                }
-
-                                if (latestIndex < data.length - 1) {
-                                    // null out the point immediately following i, to disable
-                                    // connecting i and i+1 with a line:
-                                    data[latestIndex + 1] = null;
-                                }
-
-                                if (rendererRef.get() != null) {
-                                    rendererRef.get().setLatestIndex(latestIndex);
-                                    Thread.sleep(delayMs);
-                                } else {
-                                    keepRunning = false;
-                                }
-                                latestIndex++;
-                        }
-                    } catch (InterruptedException e) {
-                        keepRunning = false;
-                    }
-                }
-            });
+        public void run() {
+            timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+            updatedTime = timeSwapBuff + timeInMilliseconds;
+            int secs = (int) (updatedTime / 1000);
+            secs = secs % 60;
+            timerValue.setText("Timer: " + String.format("%02d", secs) +"s");
+            customHandler.postDelayed(this, 0);
         }
 
-        void stop() {
-            keepRunning = false;
-            latestIndex = 0;
-        }
-
-        void start(final WeakReference<AdvancedLineAndPointRenderer> rendererRef) {
-            this.rendererRef = rendererRef;
-            keepRunning = true;
-            thread.start();
-        }
-
-        @Override
-        public int size() {
-            return data.length;
-        }
-        @Override
-        public Number getX(int index) {
-            return index;
-        }
-        @Override
-        public Number getY(int index) {
-            return data[index];
-        }
-        @Override
-        public String getTitle() {
-            return "Signal";
-        }
-
-    }
-
-
-    public static class MyFadeFormatter extends AdvancedLineAndPointRenderer.Formatter {
-
-        private int trailSize;
-
-        MyFadeFormatter(int trailSize) {
-            this.trailSize = trailSize;
-        }
-
-        @Override
-        public Paint getLinePaint(int thisIndex, int latestIndex, int seriesSize) {
-            // offset from the latest index:
-            int offset;
-            if(thisIndex > latestIndex) {
-                offset = (latestIndex + (seriesSize - thisIndex));
-            } else {
-                offset =  (latestIndex - thisIndex);
-            }
-
-            float scale = 255f / trailSize;
-            int alpha = (int) (255 - (offset * scale));
-            //int alpha = (int) (300 - (offset * scale));
-            getLinePaint().setAlpha(alpha > 0 ? alpha : 0);
-            return getLinePaint();
-        }
-    }
+    };
 
 }

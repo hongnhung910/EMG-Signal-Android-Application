@@ -70,4 +70,8 @@
     <string name="flow">Flow:</string>
     <string name="ph">pH:</string>
     <string name="turbidity">Turbidity:</string>
+    <string name="domainSeries">Time (ms)</string>
+    <string name="rangeSeries">Amplitude (V)</string>
+    <string name="amplitude_mv">Amplitude (mV)</string>
+    <string name="timer">Timer: 00s</string>
 </resources>

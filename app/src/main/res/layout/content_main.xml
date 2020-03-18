@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:stretchColumns="0"
     android:background="@drawable/background"
     android:fitsSystemWindows="true">
@@ -25,52 +26,57 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="bottom">
-
-
-            <com.androidplot.xy.XYPlot
-                android:id="@+id/plot"
-                style="@style/APDefacto.Dark"
+            android:background="@color/ap_white">
+            <LinearLayout
+                android:id="@+id/Layout_graph"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                />
+                android:background="@color/ap_white">
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/realtime_chart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/ap_white"
+                    android:layout_margin="@dimen/general_margin"/>
+            </LinearLayout>
             <TextView
-                android:id="@+id/domain_series"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Datapoint"
-                android:paddingRight="@dimen/small_padding"
-                android:textColor="@color/yellow"
-                android:textSize="@dimen/text_small"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:paddingBottom="5dp"
-                />
+                android:layout_alignBottom="@id/Layout_graph"
+                android:layout_centerHorizontal="true"
+                android:text="@string/domainSeries"
+                android:textColor="@color/design_default_color_primary_dark"
+                android:textSize="@dimen/text_small"/>
 
             <TextView
-                android:id="@+id/vertical_series"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="94dp"
+                android:layout_alignLeft="@id/Layout_graph"
                 android:layout_centerVertical="true"
-                android:text="Amplitude (V)"
-                android:textColor="@color/yellow"
-                android:textSize="@dimen/text_small"
-                android:layout_alignParentTop="true"
-                android:paddingLeft="@dimen/small_padding"
-                android:paddingTop="5dp"/>
-
+                android:rotation="-90"
+                android:text="@string/amplitude_mv"
+                android:textColor="@color/design_default_color_primary_dark"
+                android:textSize="@dimen/text_small"/>
         </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
-                android:layout_width="@dimen/sizeButton"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="bottom"
-                android:layout_marginBottom="@dimen/general_margin"
                 android:orientation="vertical"
-
-                android:layout_marginRight="@dimen/small_padding">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/general_margin">
+                <TextView
+                    android:id="@+id/timerValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_normal"
+                    android:textColor="@color/ap_white"
+                    android:text="@string/timer"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/ap_charcoal"
+                    android:padding="@dimen/small_padding"
+                    android:layout_marginBottom="@dimen/large_margin" />
 
                 <Button
                     android:id="@+id/btn_connect"
@@ -94,13 +100,6 @@
                     android:layout_height="wrap_content"
 
                     android:text="Reset"
-                    android:background="@drawable/clicked_button"
-                    android:textColor="@color/colorAccent"/>
-                <Button
-                    android:id="@+id/btn_close"
-                    android:layout_width="@dimen/sizeButton"
-                    android:layout_height="wrap_content"
-                    android:text="Close"
                     android:background="@drawable/clicked_button"
                     android:textColor="@color/colorAccent"/>
             </LinearLayout>

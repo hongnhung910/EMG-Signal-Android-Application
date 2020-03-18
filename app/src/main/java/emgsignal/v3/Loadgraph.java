@@ -64,12 +64,7 @@ public class Loadgraph extends AppCompatActivity {
 
 
         //plot graph
-        // turn array data into XY Series
-
-        //plot.setDomainBoundaries(0,length, BoundaryMode.FIXED);
         //plot.setDomainStep(StepMode.SUBDIVIDE, 5);
-
-
         EMGModel emgSeries = new EMGModel(200, voltage);
 
         plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).
@@ -82,7 +77,7 @@ public class Loadgraph extends AppCompatActivity {
         MyFadeFormatter formatter =new MyFadeFormatter(30000);
         formatter.setLegendIconEnabled(false);
         plot.addSeries(emgSeries, formatter);
-        plot.setRangeBoundaries(0, 5000, BoundaryMode.GROW);
+        //plot.setRangeBoundaries(0, 5000, BoundaryMode.GROW);
         plot.setDomainBoundaries(0, voltage.length, BoundaryMode.FIXED);
 
         // reduce the number of range labels
