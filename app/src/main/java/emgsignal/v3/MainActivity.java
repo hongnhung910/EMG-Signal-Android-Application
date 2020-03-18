@@ -12,12 +12,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -39,28 +38,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidplot.util.Redrawer;
-import com.androidplot.xy.AdvancedLineAndPointRenderer;
-import com.androidplot.xy.BoundaryMode;
-import com.androidplot.xy.PanZoom;
-import com.androidplot.xy.StepMode;
-import com.androidplot.xy.XYGraphWidget;
-import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.lang.ref.WeakReference;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Date;
-
-import emgsignal.v3.data.Constants;
-import emgsignal.v3.filter.IIR_Filter;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -77,13 +65,11 @@ public class MainActivity extends AppCompatActivity
     private UartService mService = null;
     private BluetoothDevice mDevice = null;
     private BluetoothAdapter mBtAdapter = null;   // The BluetoothAdapter is required for any and all Bluetooth activity
-    private Button btnConnectDisconnect,btnSaveData,btnClose,btnReset;
+    private Button btnConnectDisconnect, btnSaveData, btnReset;
     private DeviceListActivity deviceListActivity;
     byte[] txValue;
-    int fs=975;
+    int fs=1000;
     double[] emg = new double[30];
-    int indexEMG = 0;
-
 
     private LineGraphSeries<DataPoint> series_maternal;
     private double lastX1 = 0;
@@ -103,7 +89,6 @@ public class MainActivity extends AppCompatActivity
 
     private SaveData saveData = new SaveData();
 
-
     private TextView timerValue;
     private Handler customHandler = new Handler();
     private long startTime = 0L;
@@ -117,17 +102,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         //Handle menu section
-        {
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            DrawerLayout drawer = findViewById(R.id.drawer_layout);
-            NavigationView navigationView = findViewById(R.id.nav_view);
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            drawer.addDrawerListener(toggle);
-            toggle.syncState();
-            navigationView.setNavigationItemSelectedListener(this);
-        }
+        HandleMenu();
+
+        //Create save data Folder
+        CreateSaveFolder();
 
         deviceListActivity = new DeviceListActivity();
 
@@ -165,19 +143,13 @@ public class MainActivity extends AppCompatActivity
                     else {
                         timeSwapBuff += timeInMilliseconds;
                         customHandler.removeCallbacks(updateTimerThread);
-                            int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                            // If do not grant write external storage permission.
-                            if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                                // Request user to grant write external storage permission.
-                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                            }
-                            saveData.save(data1Save, MainActivity.this);
-                            Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
-                            mService.disconnect();
-                            btnConnectDisconnect.setText("Connect");
-                            btnSaveData.setText("Save");
-                            resetData();
-                            initGraphMaternal();
+                        saveData.save(data1Save);
+                        Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
+                        mService.disconnect();
+                        btnConnectDisconnect.setText("Connect");
+                        btnSaveData.setText("Save");
+                        resetData();
+                        initGraphMaternal();
                     }
                 }
             }
@@ -226,7 +198,7 @@ public class MainActivity extends AppCompatActivity
         data1Save.clear();
         series_maternal.resetData(new DataPoint[]{});
         //initGraphMaternal();
-        timerValue.setText("Timer: 00s");
+        timerValue.setText("00 sec");
     }
 
 
@@ -297,7 +269,6 @@ public class MainActivity extends AppCompatActivity
             if (action.equals(UartService.ACTION_GATT_CONNECTED)) {
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_CONNECT_MSG");
                         btnConnectDisconnect.setText("Disconnect");
 
@@ -315,7 +286,6 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "UART_DISCONNECT_MSG");
                         btnConnectDisconnect.setText("Connect");
                         if(!isSaving) {Toast.makeText(getApplicationContext(), "Disconnected", Toast.LENGTH_LONG).show();}
-
                         mService.close();mState = UART_PROFILE_DISCONNECTED;
                         isRunning = false;
 
@@ -366,7 +336,7 @@ public class MainActivity extends AppCompatActivity
                     /*data1Save.add(filter_out_putpoint_envelope);
                     EMG_series.add(filter_out_putpoint_envelope);*/
                     data1Save.add(filtered_point_emg);
-                    lastX1=lastX1+  1/fs;
+                    lastX1=lastX1 + 1/fs;
                     series_maternal.appendData(new DataPoint(lastX1,filtered_point_emg), true, 10000);
                     Log.d(TAG, lastX1++ + ", " + filtered_point_emg);
                 }
@@ -578,9 +548,17 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
+    public void HandleMenu(){
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+    }
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
@@ -596,7 +574,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    //> Handle menu section
+
 
     private Runnable updateTimerThread = new Runnable() {
 
@@ -605,10 +583,40 @@ public class MainActivity extends AppCompatActivity
             updatedTime = timeSwapBuff + timeInMilliseconds;
             int secs = (int) (updatedTime / 1000);
             secs = secs % 60;
-            timerValue.setText("Timer: " + String.format("%02d", secs) +"s");
+            timerValue.setText(String.format("%02d", secs) +" sec");
             customHandler.postDelayed(this, 0);
         }
 
     };
+
+    private void CreateSaveFolder() {
+        try {
+            if (ExternalStorageUtil.isExternalStorageMounted()) {
+                // Check whether this app has write external storage permission or not.
+                int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                // If do not grant write external storage permission.
+                if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                    // Request user to grant write external storage permission.
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                }
+                else {
+                    File sdCard = Environment.getExternalStorageDirectory();
+                    if (sdCard.exists()) {
+                        File publicDcimDirPath = new File(sdCard.getAbsolutePath() + "/EMG_Data");
+
+                        if (!publicDcimDirPath.exists()) {
+                            publicDcimDirPath.mkdirs();
+                            Log.i("making", "Creating Directory: " + publicDcimDirPath);
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.e("EXTERNAL_STORAGE", ex.getMessage(), ex);
+        }
+    }
 
 }

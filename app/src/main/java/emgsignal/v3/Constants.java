@@ -1,4 +1,4 @@
-package emgsignal.v3.data;
+package emgsignal.v3;
 
 public class Constants {
 

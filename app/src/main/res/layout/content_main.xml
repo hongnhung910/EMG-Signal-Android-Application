@@ -71,9 +71,10 @@
                     android:background="@color/ap_charcoal"
                     android:text="TIMER"
                     android:textColor="@color/ap_white"
-                    android:textSize="@dimen/text_title"
+                    android:textSize="@dimen/text_normal"
                     android:gravity="center_horizontal"
-                    android:paddingTop="@dimen/normal_padding"/>
+                    android:paddingTop="@dimen/small_padding"
+                    android:paddingBottom="@dimen/small_padding"/>
                 <TextView
                     android:id="@+id/timerValue"
                     android:layout_width="match_parent"
@@ -83,7 +84,7 @@
                     android:text="@string/timer"
                     android:gravity="center_horizontal"
                     android:background="@color/ap_charcoal"
-                    android:paddingBottom="@dimen/normal_padding" />
+                    android:paddingBottom="@dimen/small_padding" />
 
                 <Button
                     android:id="@+id/btn_connect"
