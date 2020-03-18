@@ -64,8 +64,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center_vertical"
                 android:layout_marginBottom="@dimen/general_margin">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/ap_charcoal"
+                    android:text="TIMER"
+                    android:textColor="@color/ap_white"
+                    android:textSize="@dimen/text_title"
+                    android:gravity="center_horizontal"
+                    android:paddingTop="@dimen/normal_padding"/>
                 <TextView
                     android:id="@+id/timerValue"
                     android:layout_width="match_parent"
@@ -73,10 +81,9 @@
                     android:textSize="@dimen/text_normal"
                     android:textColor="@color/ap_white"
                     android:text="@string/timer"
-                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
                     android:background="@color/ap_charcoal"
-                    android:padding="@dimen/small_padding"
-                    android:layout_marginBottom="@dimen/large_margin" />
+                    android:paddingBottom="@dimen/normal_padding" />
 
                 <Button
                     android:id="@+id/btn_connect"

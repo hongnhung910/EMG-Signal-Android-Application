@@ -73,5 +73,5 @@
     <string name="domainSeries">Time (ms)</string>
     <string name="rangeSeries">Amplitude (V)</string>
     <string name="amplitude_mv">Amplitude (mV)</string>
-    <string name="timer">Timer: 00s</string>
+    <string name="timer">00 sec</string>
 </resources>

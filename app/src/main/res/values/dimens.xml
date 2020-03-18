@@ -10,5 +10,6 @@
     <dimen name="text_normal">18sp</dimen>
     <dimen name="sizeButton">110dp</dimen>
     <dimen name="small_padding">10dp</dimen>
+    <dimen name="normal_padding">20dp</dimen>
     <dimen name="text_small">13sp</dimen>
 </resources>
