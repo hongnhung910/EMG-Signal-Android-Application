@@ -148,8 +148,7 @@ public class MainActivity extends AppCompatActivity
                         mService.disconnect();
                         btnConnectDisconnect.setText("Connect");
                         btnSaveData.setText("Save");
-                        resetData();
-                        initGraphMaternal();
+                        //resetData();
                     }
                 }
             }
@@ -186,8 +185,6 @@ public class MainActivity extends AppCompatActivity
                 mService.disconnect();
                 btnConnectDisconnect.setText("Connect");
                 resetData();
-                initGraphMaternal();
-                /*mService.initialize();*/
             }
         });
     }
@@ -196,11 +193,13 @@ public class MainActivity extends AppCompatActivity
         isRunning = false;
         isSaving = false;
         data1Save.clear();
-        series_maternal.resetData(new DataPoint[]{});
-        //initGraphMaternal();
+        lastX1=0;
+        series_maternal.resetData(new DataPoint[] {
+                new DataPoint(lastX1, 0)
+        });
+        initGraphMaternal();
         timerValue.setText("00 sec");
     }
-
 
     //Create graph
     private void initGraphMaternal(){
@@ -450,18 +449,16 @@ public class MainActivity extends AppCompatActivity
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
 
                     Log.d(TAG, "... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
-                    //  ((TextView) findViewById(R.id.deviceName)).setText(mDevice.getName()+ " - connecting");
                     mService.connect(deviceAddress);
                     Toast.makeText(MainActivity.this,"Connected",Toast.LENGTH_SHORT).show();
                     Log.d(TAG,"Connect Success");
-                    resetData();
+                    //resetData();
                     isRunning = true;
                 }
                 if (resultCode == Activity.RESULT_CANCELED)
                 {
-                    /*initGraphMaternal();
-                    series_maternal.resetData(new DataPoint[]{});*/
                     resetData();
+                    Toast.makeText(MainActivity.this,"No device choosen",Toast.LENGTH_SHORT).show();
                 }
             }
             break;
@@ -484,6 +481,7 @@ public class MainActivity extends AppCompatActivity
 
             //case CREATE_REQUEST_CODE:
             default:
+
                 Log.e(TAG, "wrong request code");
                 break;
         }

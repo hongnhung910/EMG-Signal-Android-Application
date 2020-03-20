@@ -106,16 +106,14 @@ public class DeviceListActivity extends Activity {
             return;
         }
         populateList();
-        mEmptyList = (TextView) findViewById(R.id.empty);
-        Button cancelButton = (Button) findViewById(R.id.btn_cancel);
+        mEmptyList = findViewById(R.id.empty);
+        Button cancelButton = findViewById(R.id.btn_cancel);
         cancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
-//                Intent returnIntent = new Intent();
-//                setResult(Activity.RESULT_CANCELED, returnIntent);
-//                finish();
-
+                Intent returnIntent = new Intent();
+                setResult(Activity.RESULT_CANCELED, returnIntent);
+                //finish();
 
                 if (mScanning==false) scanLeDevice(true);
                 else finish();
@@ -225,7 +223,6 @@ public class DeviceListActivity extends Activity {
             mScanning = false;
             Bundle b = new Bundle();
             b.putString(BluetoothDevice.EXTRA_DEVICE, deviceList.get(position).getAddress());
-
             Intent result = new Intent();
             result.putExtras(b);
             setResult(Activity.RESULT_OK, result);

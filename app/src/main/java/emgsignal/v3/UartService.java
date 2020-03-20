@@ -262,6 +262,7 @@ public class UartService extends Service {
         }
         mBluetoothGatt.disconnect();
         mBluetoothGatt.close();
+        /*190320*/ mBluetoothGatt = null;
     }
 
 
@@ -337,8 +338,6 @@ public class UartService extends Service {
 
     public void writeRXCharacteristic(byte[] value)
     {
-
-
         BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
         showMessage("mBluetoothGatt null"+ mBluetoothGatt);
         if (RxService == null) {
