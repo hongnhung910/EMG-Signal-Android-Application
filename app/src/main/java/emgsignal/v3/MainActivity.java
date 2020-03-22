@@ -3,6 +3,7 @@ package emgsignal.v3;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -34,7 +35,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -96,6 +100,11 @@ public class MainActivity extends AppCompatActivity
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
 
+    private Button btn_next1, btn_next2, btn_save;
+    private EditText et_testee_name, et_testee_height, et_testee_weight, et_testee_res,
+            et_sensor_name, et_res_m, et_res_r, et_res_e, et_humid, et_temp;
+    private String testee_name, testee_height, testee_weight, testee_res, sensor_name, res_m, res_r, res_e, humid, temp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,17 +152,14 @@ public class MainActivity extends AppCompatActivity
                     else {
                         timeSwapBuff += timeInMilliseconds;
                         customHandler.removeCallbacks(updateTimerThread);
-                        saveData.save(data1Save);
-                        Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
                         mService.disconnect();
                         btnConnectDisconnect.setText("Connect");
                         btnSaveData.setText("Save");
-                        //resetData();
+                        showdialog();
                     }
                 }
             }
         });
-
 
         // Handle Disconnect & Connect button
         btnConnectDisconnect.setOnClickListener(new View.OnClickListener() {
@@ -615,6 +621,80 @@ public class MainActivity extends AppCompatActivity
         {
             Log.e("EXTERNAL_STORAGE", ex.getMessage(), ex);
         }
+    }
+
+    public void showdialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_info_testee);
+        Window window = dialog.getWindow();
+
+        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        btn_next1 = dialog.findViewById(R.id.btn_next1);
+        et_testee_name = dialog.findViewById(R.id.testee_name);
+        et_testee_height = dialog.findViewById(R.id.testee_height);
+        et_testee_weight = dialog.findViewById(R.id.testee_weight);
+        et_testee_res = dialog.findViewById(R.id.testee_R);
+
+        btn_next1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                testee_name = et_testee_name.getText().toString().trim();
+                testee_height = et_testee_height.getText().toString().trim();
+                testee_weight = et_testee_weight.getText().toString().trim();
+                testee_res = et_testee_res.getText().toString().trim();
+
+                dialog.setContentView(R.layout.dialog_info_sensor);
+                Window window = dialog.getWindow();
+                window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.show();
+
+                btn_next2 = dialog.findViewById(R.id.btn_next2);
+                et_sensor_name = dialog.findViewById(R.id.sensor_name);
+                et_res_e = dialog.findViewById(R.id.res_e);
+                et_res_m = dialog.findViewById(R.id.res_m);
+                et_res_r = dialog.findViewById(R.id.res_r);
+
+
+                btn_next2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        sensor_name = et_sensor_name.getText().toString().trim();
+                        res_e = et_res_e.getText().toString().trim();
+                        res_m = et_res_m.getText().toString().trim();
+                        res_r = et_res_r.getText().toString().trim();
+
+                        dialog.setContentView(R.layout.dialog_info_weather);
+                        Window window = dialog.getWindow();
+                        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        dialog.setCanceledOnTouchOutside(false);
+                        dialog.show();
+                        btn_save = dialog.findViewById(R.id.btn_log_save);
+                        et_humid = dialog.findViewById(R.id.humid);
+                        et_temp = dialog.findViewById(R.id.temp);
+
+
+                        btn_save.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                humid = et_humid.getText().toString().trim();
+                                temp = et_temp.getText().toString().trim();
+                                Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
+                                saveData.save(data1Save,testee_name,sensor_name,
+                                        testee_height + "cm, " + testee_weight + "kg, R(body) = " + testee_res + "KOhm",
+                                        "M = " + res_m +", E = " + res_e + ", R = " + res_r + " (KOhm)",
+                                        "Temperature: " + temp + "°C, RH: " + humid + "%");
+                                resetData();
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
     }
 
 }

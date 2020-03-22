@@ -66,7 +66,7 @@
     <string name="cancel">Cancel</string>
     <string name="not_connected">Not Connected</string>
     <string name="updated">Updated</string>
-    <string name="temperature">Temperature:</string>
+    <string name="temperature">Temperature (°C)</string>
     <string name="flow">Flow:</string>
     <string name="ph">pH:</string>
     <string name="turbidity">Turbidity:</string>
@@ -74,4 +74,21 @@
     <string name="rangeSeries">Amplitude (V)</string>
     <string name="amplitude_mv">Amplitude (mV)</string>
     <string name="timer">00 sec</string>
+    <string name="saved_info">Saved Info</string>
+    <string name="testee">Testee</string>
+    <string name="height">Height (cm)</string>
+    <string name="weight">Weight (kg)</string>
+    <string name="sensor">Sensor</string>
+    <string name="humid">Relative humidity (RH%)</string>
+    <string name="body_resistance">Body Resistance (KOhm)</string>
+    <string name="centimeter">cm</string>
+    <string name="name">Name</string>
+    <string name="kilogram">kg</string>
+    <string name="resistance">Resistance (KOhm)</string>
+    <string name="environment">Environment</string>
+    <string name="next">Next</string>
+    <string name="save">Save</string>
+    <string name="middle">M:</string>
+    <string name="end">E:</string>
+    <string name="reference">R:</string>
 </resources>

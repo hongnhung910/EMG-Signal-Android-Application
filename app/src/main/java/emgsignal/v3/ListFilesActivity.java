@@ -2,6 +2,7 @@
 
 package emgsignal.v3;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -39,6 +41,7 @@ public class ListFilesActivity extends AppCompatActivity {
         setContentView(R.layout.list_files);
         listview = findViewById(R.id.list);
         myList = new ArrayList<>();
+
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             if (Build.VERSION.SDK_INT >= 23) {
@@ -81,7 +84,7 @@ public class ListFilesActivity extends AppCompatActivity {
                 double[] timedata = new double[ArrayData.size()];
                 int[] domainLabels = new int[ArrayData.size()];
 
-                for (int i=0;i<ArrayData.size();i++) {
+                for (int i=4;i<ArrayData.size();i++) {
                     timedata[i] = (Double.valueOf(ArrayData.get(i)));
                     domainLabels[i] = i;
                 }
