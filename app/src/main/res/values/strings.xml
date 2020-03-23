@@ -91,4 +91,10 @@
     <string name="middle">M:</string>
     <string name="end">E:</string>
     <string name="reference">R:</string>
+    <string name="frequencydomain">Frequency (Hz)</string>
+    <string name="amp">Amplitude (FFT UNIT)</string>
+    <string-array name="graphs">
+        <item>Time Domain</item>
+        <item>Frequency Domain</item>
+    </string-array>
 </resources>

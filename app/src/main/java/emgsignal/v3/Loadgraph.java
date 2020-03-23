@@ -1,205 +1,125 @@
 package emgsignal.v3;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.androidplot.ui.HorizontalPositioning;
-import com.androidplot.ui.VerticalPositioning;
-import com.androidplot.util.Redrawer;
-import com.androidplot.xy.AdvancedLineAndPointRenderer;
-import com.androidplot.xy.BoundaryMode;
-import com.androidplot.xy.CatmullRomInterpolator;
-import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.PanZoom;
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.StepMode;
-import com.androidplot.xy.XYGraphWidget;
-import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
-
-import java.lang.ref.WeakReference;
-import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
-import java.util.ArrayList;
-import java.util.Arrays;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.Spinner;
+import android.widget.TabHost;
+import android.widget.TextView;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class Loadgraph extends AppCompatActivity {
-
-    private XYPlot plot;
-    private Redrawer redrawer;
-
-
+    private LineGraphSeries<DataPoint> fftSeries, timeSeries;
+    private static final double Fs = 1000;
     public Double[] voltage;
     Integer[] domain;
     int length;
     String TAG = "SAVE_DATA";
+    TabHost tabHost;
+    GraphView time_graph, frequency_graph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_loadgraph);
-        plot = findViewById(R.id.plot);
-        Log.i(TAG, "onCreate: starting to draw graph...................");
-        final Intent getData = getIntent();
-        length = getData.getIntExtra("Length",1);
-        Log.i(TAG, "onCreate: Size : " + length +"...................");
+        setContentView(R.layout.tab_view);
 
-
-        double[] timedata = getData.getDoubleArrayExtra("TimeData");
-        int[] domainLabels = getData.getIntArrayExtra("DomainLabels");
-
-        voltage = new Double[length];
-        domain = new Integer[length];
-        for (int i=0; i<length; i++) {
-            voltage[i] = Double.valueOf(timedata[i]);
-            domain[i] = Integer.valueOf(domainLabels[i]);
-        }
-
-
-        //plot graph
-        //plot.setDomainStep(StepMode.SUBDIVIDE, 5);
-        EMGModel emgSeries = new EMGModel(200, voltage);
-
-        plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).
-                setFormat(new DecimalFormat("0"));
-        plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.LEFT).
-                setFormat(new DecimalFormat("0"));
-
-
-        // add a new series' to the xyplot:
-        MyFadeFormatter formatter =new MyFadeFormatter(30000);
-        formatter.setLegendIconEnabled(false);
-        plot.addSeries(emgSeries, formatter);
-        //plot.setRangeBoundaries(0, 5000, BoundaryMode.GROW);
-        plot.setDomainBoundaries(0, voltage.length, BoundaryMode.FIXED);
-
-        // reduce the number of range labels
-        plot.setLinesPerRangeLabel(3);
-
-        // set a redraw rate of 30hz and start immediately:
-        redrawer = new Redrawer(plot, 1000, true);
-
-        plot.setTitle("Raw signal - Time Domain");
-
-    }
-
-    public static class MyFadeFormatter extends AdvancedLineAndPointRenderer.Formatter {
-
-        private int trailSize;
-
-        MyFadeFormatter(int trailSize) {
-            this.trailSize = trailSize;
-        }
-
-        @Override
-        public Paint getLinePaint(int thisIndex, int latestIndex, int seriesSize) {
-            // offset from the latest index:
-            int offset = 0;
-            /*if(thisIndex > latestIndex) {
-                offset = latestIndex + (seriesSize - thisIndex);
-            } else {
-                offset =  latestIndex - thisIndex;
-            }*/
-
-            float scale = 255f / trailSize;
-            int alpha = (int) (255 - (offset * scale));
-            getLinePaint().setAlpha(alpha > 0 ? alpha : 0);
-            return getLinePaint();
-        }
-    }
-
-
-    public static class EMGModel implements XYSeries {
-        private final Number[] data;
-        private final long delayMs;
-        private final int blipInteral;
-        private final Thread thread;
-        private boolean keepRunning;
-        private int latestIndex;
-
-        private WeakReference<AdvancedLineAndPointRenderer> rendererRef;
-
-        /**
-         * @param updateFreqHz Frequency at which new samples are added to the model
-         */
-        EMGModel(int updateFreqHz, Double voltage[]) {
-
-            final int size = voltage.length;
-            data = new Number[size];
-            for (int i = 0; i< size; i++)
-            {
-                data[i] = voltage[i];
+        //Get intent - data from realtime signal saved
+        {
+            final Intent getData = getIntent();
+            length = getData.getIntExtra("Length", 1);
+            double[] timedata = getData.getDoubleArrayExtra("TimeData");
+            int[] domainLabels = getData.getIntArrayExtra("DomainLabels");
+            voltage = new Double[length];
+            domain = new Integer[length];
+            for (int i = 0; i < length; i++) {
+                voltage[i] = Double.valueOf(timedata[i]);
+                domain[i] = Integer.valueOf(domainLabels[i]);
             }
-
-            // translate hz into delay (ms):
-            delayMs = 1000 / updateFreqHz;
-
-            // add 7 "blips" into the signal:
-            blipInteral = size / 7;
-
-            thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (keepRunning) {
-                            if (latestIndex >= size) {
-                                keepRunning = false;
-                            }
-                            if(latestIndex < size - 1) {
-                                // null out the point immediately following i, to disable
-                                // connecting i and i+1 with a line:
-                                data[latestIndex +1] = null;
-                            }
-
-                            if(rendererRef.get() != null) {
-                                rendererRef.get().setLatestIndex(latestIndex);
-                                Thread.sleep(delayMs);
-                            } else {
-                                keepRunning = false;
-                            }
-                            latestIndex++;
-                        }
-                    } catch (InterruptedException e) {
-                        keepRunning = false;
-                    }
-                }
-            });
         }
 
+        //Set up tabHost
+        tabHost = findViewById(R.id.tabHost);
+        tabHost.setup();
+        time_graph = findViewById(R.id.time_chart);
+        frequency_graph = findViewById(R.id.frequency_chart);
 
+        setGraph(time_graph);
+        setGraph(frequency_graph);
+        createTimeseries();
+        createFFTseries();
 
-        @Override
-        public int size() {
-            return data.length;
-        }
+        //Tab 1
+        TabHost.TabSpec spec = tabHost.newTabSpec("Time domain");
+        spec.setContent(R.id.tab1);
+        spec.setIndicator("Time domain");
+        tabHost.addTab(spec);
 
-        @Override
-        public Number getX(int index) {
-            return index;
-        }
+        //Tab 2
+        spec = tabHost.newTabSpec("Frequency domain");
+        spec.setContent(R.id.tab2);
+        spec.setIndicator("Frequency domain");
+        tabHost.addTab(spec);
 
-        @Override
-        public Number getY(int index) {
-            return data[index];
-        }
-
-        @Override
-        public String getTitle() {
-            return "Signal";
-        }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        redrawer.finish();
+    public void setGraph(GraphView graph) {
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setYAxisBoundsManual(true);
+        //scrollable
+        graph.getViewport().setScalable(true);
+        graph.getViewport().setScrollable(true);
+        graph.getViewport().setScalableY(true);
+        graph.getViewport().setScrollableY(true);
+
+    }
+
+    public void createTimeseries(){
+        timeSeries = new LineGraphSeries<DataPoint>();
+        timeSeries.setColor(Color.RED);
+        timeSeries.setThickness(2);
+        for(int k=0; k< voltage.length ; k++) {
+            timeSeries.appendData(new DataPoint(k , voltage[k]), true, voltage.length);
+        }
+        time_graph.addSeries(timeSeries);
+        time_graph.getViewport().setMaxX(voltage.length/3);
+        time_graph.getViewport().setMaxY(4000);
+    }
+
+    public void createFFTseries(){
+        Double[] ff = Helper.appendZeros(voltage);
+        for(int k0 = 0 ; k0 < ff.length ; k0++){
+            ff[k0] = ff[k0];
+        }
+        Complex[] fft = FFT.fft(ff);
+        Double[] absFFT = new Double[fft.length];
+
+        for(int k = 0 ; k < fft.length ; k++){
+            //normalized FFT signal by dividing for the length of the signal
+            absFFT[k] = Complex.abs(fft[k])/fft.length;
+        }
+
+        fftSeries = new LineGraphSeries<DataPoint>();
+        fftSeries.setColor(Color.RED);
+        fftSeries.setThickness(2);
+        for(int k1=0; k1< absFFT.length ; k1++){
+            fftSeries.appendData(new DataPoint(k1*Fs/absFFT.length,absFFT[k1]),true,absFFT.length);
+        }
+
+        frequency_graph.addSeries(fftSeries);
+        frequency_graph.setTitleColor(Color.BLUE);
+        frequency_graph.getViewport().setMaxX(Fs/3);
+        frequency_graph.getViewport().setMaxY(30);
     }
 
 }

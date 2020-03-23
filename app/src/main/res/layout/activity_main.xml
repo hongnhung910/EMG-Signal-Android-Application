@@ -22,8 +22,8 @@
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer"
         android:background="#15317E"
-        app:itemTextColor="@color/colorAccent"
-        app:itemIconTint="@color/colorAccent"
+        app:itemTextColor="@color/ap_white"
+        app:itemIconTint="@color/ap_white"
         app:itemHorizontalPadding="@dimen/general_margin"/>
 
 </android.support.v4.widget.DrawerLayout>
