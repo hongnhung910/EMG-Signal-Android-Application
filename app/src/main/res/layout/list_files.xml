@@ -10,7 +10,7 @@
         android:text="Saved Data"
         android:textSize="@dimen/text_title"
         android:textStyle="bold"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorPrimary"
         android:padding="@dimen/small_padding"
         android:textColor="@color/ap_white"/>
     <ListView

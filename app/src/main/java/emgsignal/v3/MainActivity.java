@@ -135,32 +135,6 @@ public class MainActivity extends AppCompatActivity
         btnConnectDisconnect=findViewById(R.id.btn_connect);
         service_init();
 
-        // Handle Save emgsignal.v3.data function
-        btnSaveData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(data1Save.size() == 0)
-                { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
-                else {
-                    if (btnSaveData.getText().equals("Save")) {
-                        data1Save.clear();
-                        btnSaveData.setText("Saving");
-                        isSaving = true;
-                        startTime = SystemClock.uptimeMillis();
-                        customHandler.postDelayed(updateTimerThread, 0);
-                    }
-                    else {
-                        timeSwapBuff += timeInMilliseconds;
-                        customHandler.removeCallbacks(updateTimerThread);
-                        mService.disconnect();
-                        btnConnectDisconnect.setText("Connect");
-                        btnSaveData.setText("Save");
-                        showdialog();
-                    }
-                }
-            }
-        });
-
         // Handle Disconnect & Connect button
         btnConnectDisconnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,6 +154,31 @@ public class MainActivity extends AppCompatActivity
                         //Disconnect button pressed
                         mService.disconnect();
                         btnConnectDisconnect.setText("Connect");
+                    }
+                }
+            }
+        });
+
+        // Handle Save emgsignal.v3.data function
+        btnSaveData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(data1Save.size() == 0)
+                { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
+                else {
+                    if (btnSaveData.getText().equals("Save")) {
+                        btnSaveData.setText("Saving");
+                        isSaving = true;
+                        startTime = SystemClock.uptimeMillis();
+                        customHandler.postDelayed(updateTimerThread, 0);
+                    }
+                    else {
+                        timeSwapBuff += timeInMilliseconds;
+                        customHandler.removeCallbacks(updateTimerThread);
+                        mService.disconnect();
+                        btnConnectDisconnect.setText("Connect");
+                        btnSaveData.setText("Save");
+                        showdialog();
                     }
                 }
             }
