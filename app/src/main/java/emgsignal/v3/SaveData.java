@@ -54,7 +54,7 @@ public class SaveData extends AppCompatActivity {
                 }
     public String getDate(){
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyyMMdd_HH'h'mm'm'ss's'");
+        SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyyMMdd_HH'h'mm'm'");
         String Date = simpledateformat.format(calendar.getTime());
         return Date;
     }

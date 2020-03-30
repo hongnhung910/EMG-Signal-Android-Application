@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TabHost
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_alignParentTop="true"
-    android:layout_centerHorizontal="true"
-    android:id="@+id/tabHost">
+    android:layout_height="match_parent">
+    <TabHost
+        android:id="@+id/tabHost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#444444">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -16,7 +20,6 @@
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#b8e3fd"
                 />
 
             <FrameLayout
@@ -39,7 +42,7 @@
                             android:id="@+id/Layout_graph"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="@color/ap_white">
+                            android:background="#538fcf  ">
                             <com.jjoe64.graphview.GraphView
                                 android:id="@+id/time_chart"
                                 android:layout_width="wrap_content"
@@ -53,7 +56,7 @@
                             android:layout_alignBottom="@id/Layout_graph"
                             android:layout_centerHorizontal="true"
                             android:text="@string/domainSeries"
-                            android:textColor="@color/design_default_color_primary_dark"
+                            android:textColor="@color/ap_white"
                             android:textSize="@dimen/text_small"/>
 
                         <TextView
@@ -63,7 +66,7 @@
                             android:layout_centerVertical="true"
                             android:rotation="-90"
                             android:text="@string/amplitude_mv"
-                            android:textColor="@color/design_default_color_primary_dark"
+                            android:textColor="@color/ap_white"
                             android:textSize="@dimen/text_small"/>
                     </RelativeLayout>
 
@@ -82,7 +85,7 @@
                             android:id="@+id/Layout_graph2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="@color/ap_white">
+                            android:background="#538fcf">
                             <com.jjoe64.graphview.GraphView
                                 android:id="@+id/frequency_chart"
                                 android:layout_width="wrap_content"
@@ -96,7 +99,7 @@
                             android:layout_alignBottom="@id/Layout_graph2"
                             android:layout_centerHorizontal="true"
                             android:text="@string/frequencydomain"
-                            android:textColor="@color/design_default_color_primary_dark"
+                            android:textColor="@color/ap_white"
                             android:textSize="@dimen/text_small"/>
 
                         <TextView
@@ -106,7 +109,7 @@
                             android:layout_centerVertical="true"
                             android:rotation="-90"
                             android:text="Power Spectral"
-                            android:textColor="@color/design_default_color_primary_dark"
+                            android:textColor="@color/ap_white"
                             android:textSize="@dimen/text_small"/>
 
                     </RelativeLayout>
@@ -114,7 +117,6 @@
 
                 </LinearLayout>
             </FrameLayout>
-
-
         </LinearLayout>
 </TabHost>
+</LinearLayout>

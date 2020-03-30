@@ -20,12 +20,18 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class ListFilesActivity extends AppCompatActivity {
@@ -49,7 +55,8 @@ public class ListFilesActivity extends AppCompatActivity {
                     File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/EMG_Data");
                     if (dir.exists()) {
                         Log.d("path", dir.toString());
-                        File list[] = dir.listFiles();
+                        File[] list = dir.listFiles();
+                        Arrays.sort(list, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
                         for (int i = 0; i < list.length; i++) {
                             myList.add(list[i].getName());
                         }
@@ -61,6 +68,7 @@ public class ListFilesActivity extends AppCompatActivity {
                 }
             } else {
                 File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/EMG_Data");
+
                 if (dir.exists()) {
                     Log.d("path", dir.toString());
                     File list[] = dir.listFiles();
@@ -147,7 +155,6 @@ public class ListFilesActivity extends AppCompatActivity {
                 break;
         }
     }
-
 
 }
 

@@ -64,14 +64,34 @@ public class Loadgraph extends AppCompatActivity {
         spec.setContent(R.id.tab1);
         spec.setIndicator("Time domain");
         tabHost.addTab(spec);
+        tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2763a3"));
+        TextView tv = tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).findViewById(android.R.id.title);
+        tv.setTextColor(Color.WHITE);
 
         //Tab 2
         spec = tabHost.newTabSpec("Frequency domain");
         spec.setContent(R.id.tab2);
         spec.setIndicator("Frequency domain");
         tabHost.addTab(spec);
+        tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                int tab = tabHost.getCurrentTab();
+                for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
+                    // When tab is not selected
+                    tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor("#444444"));
+                    TextView tv = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
+                    tv.setTextColor(Color.BLACK);
+                }
+                // When tab is selected
+                tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2763a3"));
+                TextView tv = (TextView) tabHost.getTabWidget().getChildAt(tab).findViewById(android.R.id.title);
+                tv.setTextColor(Color.WHITE);
+            }
+        });
 
     }
+
 
     public void setGraph(GraphView graph) {
         graph.getViewport().setXAxisBoundsManual(true);

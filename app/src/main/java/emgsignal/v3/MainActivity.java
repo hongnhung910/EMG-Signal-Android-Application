@@ -173,7 +173,8 @@ public class MainActivity extends AppCompatActivity
                         customHandler.postDelayed(updateTimerThread, 0);
                     }
                     else {
-                        timeSwapBuff += timeInMilliseconds;
+                        //timeSwapBuff += timeInMilliseconds;
+                        timeSwapBuff = 0;
                         customHandler.removeCallbacks(updateTimerThread);
                         mService.disconnect();
                         btnConnectDisconnect.setText("Connect");
