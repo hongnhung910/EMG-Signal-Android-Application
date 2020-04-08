@@ -9,10 +9,16 @@
             android:icon="@drawable/icon_home"
             android:title="@string/menu_home"/>
         <item
-            android:id="@+id/menu_saved_data"
+        android:id="@+id/menu_saved_data"
+        android:icon="@drawable/icon_saved_data"
+        android:title="@string/menu_saved_data" />
+        <item
+            android:id="@+id/menu_add_user"
             android:icon="@drawable/icon_saved_data"
-            android:title="@string/menu_saved_data" />
+            android:title="@string/menu_add_user" />
+        <item
+            android:id="@+id/menu_add_sensor"
+            android:icon="@drawable/icon_saved_data"
+            android:title="@string/menu_add_sensor" />
     </group>
-
-
 </menu>

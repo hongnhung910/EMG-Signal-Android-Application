@@ -9,10 +9,8 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_saved_data">Saved Data</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
+    <string name="menu_add_user">Add User</string>
+    <string name="menu_add_sensor">Add Sensor</string>
 
     <string name="no_device">&lt;Select a device&gt;</string>
     <string name="select_device">Select a device</string>
@@ -92,9 +90,10 @@
     <string name="end">E:</string>
     <string name="reference">R:</string>
     <string name="frequencydomain">Frequency (Hz)</string>
-    <string name="amp">Amplitude (FFT UNIT)</string>
-    <string-array name="graphs">
-        <item>Time Domain</item>
-        <item>Frequency Domain</item>
+    <string name="FFTamp">Amplitude (FFT UNIT)</string>
+    <string name="DBamp">Amplitude (dB/Hz)</string>
+    <string-array name="FFTgraphs">
+        <item>FFT Unit</item>
+        <item>DB/Hz</item>
     </string-array>
 </resources>

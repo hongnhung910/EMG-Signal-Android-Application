@@ -19,8 +19,7 @@
             <TabWidget
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content" />
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
@@ -31,24 +30,26 @@
                     android:id="@+id/tab1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:gravity="center">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@color/ap_white">
+
                         <LinearLayout
                             android:id="@+id/Layout_graph"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="#538fcf  ">
+                            android:background="@color/ap_white">
                             <com.jjoe64.graphview.GraphView
                                 android:id="@+id/time_chart"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@color/ap_white"
-                                android:layout_margin="@dimen/general_margin"/>
+                                android:layout_marginBottom="@dimen/general_margin"
+                                android:layout_marginTop="@dimen/general_margin"/>
                         </LinearLayout>
                         <TextView
                             android:layout_width="wrap_content"
@@ -56,27 +57,51 @@
                             android:layout_alignBottom="@id/Layout_graph"
                             android:layout_centerHorizontal="true"
                             android:text="@string/domainSeries"
-                            android:textColor="@color/ap_white"
+                            android:textColor="@color/colorPrimary"
                             android:textSize="@dimen/text_small"/>
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="94dp"
+                            android:layout_height="wrap_content"
                             android:layout_alignLeft="@id/Layout_graph"
+                            android:layout_alignParentTop="true"
                             android:layout_centerVertical="true"
-                            android:rotation="-90"
                             android:text="@string/amplitude_mv"
-                            android:textColor="@color/ap_white"
+                            android:textColor="@color/colorPrimary"
                             android:textSize="@dimen/text_small"/>
                     </RelativeLayout>
 
                 </LinearLayout>
-
                 <LinearLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="@color/ap_white">
+
+                    <RadioGroup
+                        android:id="@+id/group_radio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/rd_fft_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FFT Unit"
+                            android:textColor="@color/colorPrimary"
+                            android:checked="true"
+                            android:onClick="onRadioButtonClicked"/>
+                        <RadioButton
+                            android:id="@+id/rd_db_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="dB/Hz"
+                            android:textColor="@color/colorPrimary"
+                            android:layout_marginLeft="@dimen/small_padding"
+                            android:onClick="onRadioButtonClicked"/>
+                    </RadioGroup>
+
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -85,13 +110,13 @@
                             android:id="@+id/Layout_graph2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="#538fcf">
+                            android:background="@color/ap_white">
                             <com.jjoe64.graphview.GraphView
                                 android:id="@+id/frequency_chart"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@color/ap_white"
-                                android:layout_margin="@dimen/general_margin"/>
+                                android:layout_marginBottom="@dimen/general_margin"/>
                         </LinearLayout>
                         <TextView
                             android:layout_width="wrap_content"
@@ -99,23 +124,12 @@
                             android:layout_alignBottom="@id/Layout_graph2"
                             android:layout_centerHorizontal="true"
                             android:text="@string/frequencydomain"
-                            android:textColor="@color/ap_white"
-                            android:textSize="@dimen/text_small"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="94dp"
-                            android:layout_alignLeft="@id/Layout_graph2"
-                            android:layout_centerVertical="true"
-                            android:rotation="-90"
-                            android:text="Power Spectral"
-                            android:textColor="@color/ap_white"
+                            android:textColor="@color/colorPrimary"
                             android:textSize="@dimen/text_small"/>
 
                     </RelativeLayout>
-
-
                 </LinearLayout>
+
             </FrameLayout>
         </LinearLayout>
 </TabHost>

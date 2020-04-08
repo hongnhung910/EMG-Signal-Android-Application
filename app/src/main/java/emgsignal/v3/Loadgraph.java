@@ -12,22 +12,27 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class Loadgraph extends AppCompatActivity {
-    private LineGraphSeries<DataPoint> fftSeries, timeSeries;
+    private LineGraphSeries<DataPoint> fftSeries, timeSeries, dB_fftSeries;
     private static final double Fs = 1000;
-    public Double[] voltage;
+    public Double[] voltage, absFFT;
     Integer[] domain;
     int length;
     String TAG = "SAVE_DATA";
     TabHost tabHost;
     GraphView time_graph, frequency_graph;
+    RadioGroup radioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +61,72 @@ public class Loadgraph extends AppCompatActivity {
 
         setGraph(time_graph);
         setGraph(frequency_graph);
-        createTimeseries();
-        createFFTseries();
+        //create Time series
+        {
+            timeSeries = new LineGraphSeries<>();
+            timeSeries.setColor(Color.RED);
+            timeSeries.setThickness(2);
+            for(int k=0; k< voltage.length ; k++) {
+                timeSeries.appendData(new DataPoint(k , voltage[k]), true, voltage.length);
+            }
+            time_graph.addSeries(timeSeries);
+            time_graph.getViewport().setMaxX(voltage.length/3);
+            time_graph.getViewport().setMaxY(4000);
+        }
+
+        //CreateFFT Series
+        frequency_graph.getViewport().setMaxX(Fs/3);
+        frequency_graph.getViewport().setMaxY(30);
+        fftSeries = new LineGraphSeries<>();
+        fftSeries.setColor(Color.RED);
+        fftSeries.setThickness(2);
+        dB_fftSeries = new LineGraphSeries<>();
+        dB_fftSeries.setColor(Color.BLUE);
+        dB_fftSeries.setThickness(2);
+        Double[] ff = Helper.appendZeros(voltage);
+        Complex[] fft = FFT.fft(ff);
+        absFFT = new Double[fft.length];
+
+        for(int k = 0 ; k < fft.length ; k++){
+            //normalized FFT signal by dividing for the length of the signal
+            absFFT[k] = Complex.abs(fft[k])/fft.length;
+        }
+        for(int k1=0; k1< absFFT.length ; k1++){
+            fftSeries.appendData(new DataPoint(k1*Fs/absFFT.length,absFFT[k1]),true,absFFT.length);
+        }
+        for(int k1=0; k1< absFFT.length ; k1++){
+            dB_fftSeries.appendData(new DataPoint(k1*Fs/absFFT.length,20*Math.log(absFFT[k1])/Math.log(10)),true,absFFT.length);
+        }
+        frequency_graph.addSeries(fftSeries);
+        //>>>>
+
+        radioGroup = findViewById(R.id.group_radio);
+        radioGroup.setOnCheckedChangeListener(
+                new RadioGroup
+                        .OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group,
+                                                 int checkedId)
+                    {
+                        // Get the selected Radio Button
+                        int selected = radioGroup.getCheckedRadioButtonId();
+                        switch (selected){
+                            case R.id.rd_fft_unit:
+                                frequency_graph.removeAllSeries();
+                                frequency_graph.getViewport().setMaxX(Fs/3);
+                                frequency_graph.getViewport().setMaxY(30);
+                                frequency_graph.getViewport().setMinY(0);
+                                frequency_graph.addSeries(fftSeries);
+                                break;
+                            case R.id.rd_db_unit:
+                                frequency_graph.removeAllSeries();
+                                frequency_graph.getViewport().setMinY(-60);
+                                frequency_graph.getViewport().setMaxY(60);
+                                frequency_graph.addSeries(dB_fftSeries);
+                                break;
+                        }
+                    }
+                });
 
         //Tab 1
         TabHost.TabSpec spec = tabHost.newTabSpec("Time domain");
@@ -80,12 +149,12 @@ public class Loadgraph extends AppCompatActivity {
                 for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
                     // When tab is not selected
                     tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor("#444444"));
-                    TextView tv = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
+                    TextView tv = tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
                     tv.setTextColor(Color.BLACK);
                 }
                 // When tab is selected
                 tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2763a3"));
-                TextView tv = (TextView) tabHost.getTabWidget().getChildAt(tab).findViewById(android.R.id.title);
+                TextView tv =  tabHost.getTabWidget().getChildAt(tab).findViewById(android.R.id.title);
                 tv.setTextColor(Color.WHITE);
             }
         });
@@ -104,42 +173,6 @@ public class Loadgraph extends AppCompatActivity {
 
     }
 
-    public void createTimeseries(){
-        timeSeries = new LineGraphSeries<DataPoint>();
-        timeSeries.setColor(Color.RED);
-        timeSeries.setThickness(2);
-        for(int k=0; k< voltage.length ; k++) {
-            timeSeries.appendData(new DataPoint(k , voltage[k]), true, voltage.length);
-        }
-        time_graph.addSeries(timeSeries);
-        time_graph.getViewport().setMaxX(voltage.length/3);
-        time_graph.getViewport().setMaxY(4000);
+    public void onRadioButtonClicked(View view) {
     }
-
-    public void createFFTseries(){
-        Double[] ff = Helper.appendZeros(voltage);
-        for(int k0 = 0 ; k0 < ff.length ; k0++){
-            ff[k0] = ff[k0];
-        }
-        Complex[] fft = FFT.fft(ff);
-        Double[] absFFT = new Double[fft.length];
-
-        for(int k = 0 ; k < fft.length ; k++){
-            //normalized FFT signal by dividing for the length of the signal
-            absFFT[k] = Complex.abs(fft[k])/fft.length;
-        }
-
-        fftSeries = new LineGraphSeries<DataPoint>();
-        fftSeries.setColor(Color.RED);
-        fftSeries.setThickness(2);
-        for(int k1=0; k1< absFFT.length ; k1++){
-            fftSeries.appendData(new DataPoint(k1*Fs/absFFT.length,absFFT[k1]),true,absFFT.length);
-        }
-
-        frequency_graph.addSeries(fftSeries);
-        frequency_graph.setTitleColor(Color.BLUE);
-        frequency_graph.getViewport().setMaxX(Fs/3);
-        frequency_graph.getViewport().setMaxY(30);
-    }
-
 }
