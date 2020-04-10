@@ -76,22 +76,32 @@
     <string name="testee">Testee</string>
     <string name="height">Height (cm)</string>
     <string name="weight">Weight (kg)</string>
-    <string name="sensor">Sensor</string>
+    <string name="sensor">Sensor Information</string>
     <string name="humid">Relative humidity (RH%)</string>
     <string name="body_resistance">Body Resistance (KOhm)</string>
     <string name="centimeter">cm</string>
     <string name="name">Name</string>
+    <string name="TypeSensor">Type of Sensor</string>
     <string name="kilogram">kg</string>
     <string name="resistance">Resistance (KOhm)</string>
     <string name="environment">Environment</string>
     <string name="next">Next</string>
     <string name="save">Save</string>
-    <string name="middle">M:</string>
-    <string name="end">E:</string>
-    <string name="reference">R:</string>
+    <string name="middle">Middle electrode</string>
+    <string name="end">End electrode</string>
+    <string name="reference">Reference electrode</string>
     <string name="frequencydomain">Frequency (Hz)</string>
     <string name="FFTamp">Amplitude (FFT UNIT)</string>
     <string name="DBamp">Amplitude (dB/Hz)</string>
+    <string name="user">User Information</string>
+    <string name="birthday">Date of birth</string>
+    <string name="add_user">Add user</string>
+    <string name="add_sensor">Add Sensor</string>
+    <string name="format_date">dd/mm/yyyy</string>
+    <string name="sensor_name">Sensor</string>
+    <string name="enter_temp">Enter temperature at the moment</string>
+    <string name="enter_humid">Enter humidity at the moment</string>
+    <string name="menu_info">Information</string>
     <string-array name="FFTgraphs">
         <item>FFT Unit</item>
         <item>DB/Hz</item>

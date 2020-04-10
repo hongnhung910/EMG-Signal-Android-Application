@@ -9,18 +9,19 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="User Information"
+            android:text="@string/user"
             android:textSize="@dimen/text_title"
             android:textStyle="bold"
             android:background="@color/colorPrimary"
-            android:padding="@dimen/small_padding"
-            android:textColor="@color/ap_white"/>
+            android:textColor="@color/ap_white"
+            android:paddingLeft="@dimen/normal_padding"
+            android:paddingTop="@dimen/normal_padding"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/bg_dialog_text"
-        android:layout_margin="@dimen/mini_padding"
+        android:layout_margin="@dimen/general_margin"
         android:orientation="vertical"
         android:padding="@dimen/normal_padding"
         android:gravity="center_horizontal">
@@ -28,7 +29,7 @@
         <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginBottom="@dimen/general_margin">
+        android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,11 +52,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" android:layout_marginBottom="@dimen/general_margin">
+            android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Date of birth"
+                android:text="@string/birthday"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/text_small"
                 android:padding="@dimen/small_padding"/>
@@ -68,7 +69,10 @@
                 android:textSize="@dimen/text_small"
                 android:inputType="text"
                 android:maxLines="1"
-                android:hint="dd/mm/yyyy"
+                android:hint="@string/format_date"
+                android:clickable="true"
+                android:editable="false"
+                android:focusable="false"
                 />
         </LinearLayout>
 
@@ -76,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="@dimen/general_margin">
+            >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -86,13 +90,20 @@
                 android:padding="@dimen/small_padding"/>
             <EditText
                 android:id="@+id/testee_height"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:padding="@dimen/small_padding"
                 android:textSize="@dimen/text_small"
                 android:inputType="number"
                 android:maxLines="1"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -115,7 +126,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="@dimen/general_margin"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -136,13 +146,14 @@
                 />
         </LinearLayout>
         <Button
-            android:id="@+id/btn_next1"
+            android:id="@+id/btn_addUser"
             android:layout_width="@dimen/sizeButton"
             android:layout_height="wrap_content"
             android:background="@drawable/clicked_button"
-            android:text="Add user"
+            android:text="@string/add_user"
             android:textColor="@color/ap_white"
-            android:textSize="@dimen/text_small"/>
+            android:textSize="@dimen/text_small"
+            android:layout_marginTop="@dimen/large_margin"/>
 
     </LinearLayout>
 

@@ -14,11 +14,15 @@
         android:title="@string/menu_saved_data" />
         <item
             android:id="@+id/menu_add_user"
-            android:icon="@drawable/icon_saved_data"
+            android:icon="@drawable/icon_user"
             android:title="@string/menu_add_user" />
         <item
             android:id="@+id/menu_add_sensor"
-            android:icon="@drawable/icon_saved_data"
+            android:icon="@drawable/icon_sensor"
             android:title="@string/menu_add_sensor" />
+        <item
+            android:id="@+id/menu_info"
+            android:icon="@drawable/icon_info"
+            android:title="@string/menu_info" />
     </group>
 </menu>

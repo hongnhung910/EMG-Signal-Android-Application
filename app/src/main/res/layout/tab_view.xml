@@ -78,29 +78,40 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:background="@color/ap_white">
-
-                    <RadioGroup
-                        android:id="@+id/group_radio"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-                        <RadioButton
-                            android:id="@+id/rd_fft_unit"
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="FFT Unit"
-                            android:textColor="@color/colorPrimary"
-                            android:checked="true"
-                            android:onClick="onRadioButtonClicked"/>
-                        <RadioButton
-                            android:id="@+id/rd_db_unit"
+                            android:text="Power Spectrum"
+                            android:padding="@dimen/small_padding"
+                            android:textColor="@color/colorPrimaryDark"/>
+
+                        <RadioGroup
+                            android:id="@+id/group_radio"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="dB/Hz"
-                            android:textColor="@color/colorPrimary"
-                            android:layout_marginLeft="@dimen/small_padding"
-                            android:onClick="onRadioButtonClicked"/>
-                    </RadioGroup>
+                            android:orientation="horizontal">
+                            <RadioButton
+                                android:id="@+id/rd_fft_unit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Linear"
+                                android:textColor="@color/colorPrimary"
+                                android:checked="true"
+                                android:onClick="onRadioButtonClicked"/>
+                            <RadioButton
+                                android:id="@+id/rd_db_unit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="dB"
+                                android:textColor="@color/colorPrimary"
+                                android:layout_marginLeft="@dimen/small_padding"
+                                android:onClick="onRadioButtonClicked"/>
+                        </RadioGroup>
+                    </LinearLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"

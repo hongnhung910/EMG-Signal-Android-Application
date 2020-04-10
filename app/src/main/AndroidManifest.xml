@@ -12,9 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="LockedOrientationActivity">
-        <activity android:name=".Add_User_Activity"
-            android:screenOrientation = "portrait">
-
+        <activity android:name=".Add_Sensor_Activity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".Add_User_Activity"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".SplashScreen"
@@ -49,12 +52,12 @@
             android:enabled="true"
             android:exported="true" />
     </application>
-
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 </manifest>

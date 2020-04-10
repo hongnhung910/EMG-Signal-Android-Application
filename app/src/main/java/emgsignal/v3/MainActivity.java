@@ -37,11 +37,13 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
@@ -49,10 +51,8 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -100,10 +100,11 @@ public class MainActivity extends AppCompatActivity
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
 
-    private Button btn_next1, btn_next2, btn_save;
-    private EditText et_testee_name, et_testee_height, et_testee_weight, et_testee_res,
-            et_sensor_name, et_res_m, et_res_r, et_res_e, et_humid, et_temp;
+    private Button btn_save;
+    private EditText et_user;
     private String testee_name, testee_height, testee_weight, testee_res, sensor_name, res_m, res_r, res_e, humid, temp;
+    private DBManager dbManager;
+    private ArrayList<String> listUser, listSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,13 +161,17 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        for (int i=0; i<100; i++){
+            data1Save.add(i + 0.1);
+        }
+
         // Handle Save emgsignal.v3.data function
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(data1Save.size() == 0)
+                /*if(data1Save.size() == 0)
                 { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
-                else {
+                else*/ {
                     if (btnSaveData.getText().equals("Save")) {
                         btnSaveData.setText("Saving");
                         isSaving = true;
@@ -567,14 +572,23 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.menu_home) {
-
-        } else if (id == R.id.menu_saved_data) {
-            Intent intent = new Intent(MainActivity.this, ListFilesActivity.class);
-            startActivity(intent);
-            //go to ListFilesActivity.java
+        switch (id) {
+            case R.id.menu_home:
+                break;
+            case R.id.menu_saved_data:
+                Intent intent = new Intent(MainActivity.this, ListFilesActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.menu_add_user:
+                Intent intent2 = new Intent(MainActivity.this, Add_User_Activity.class);
+                startActivity(intent2);
+                break;
+            case R.id.menu_add_sensor:
+                Intent intent3 = new Intent(MainActivity.this, Add_Sensor_Activity.class);
+                startActivity(intent3);
+                break;
         }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -626,76 +640,126 @@ public class MainActivity extends AppCompatActivity
 
     public void showdialog() {
         final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_info_testee);
+        dialog.setContentView(R.layout.dialog_info_saved);
         Window window = dialog.getWindow();
-
         window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
-        btn_next1 = dialog.findViewById(R.id.btn_next1);
-        et_testee_name = dialog.findViewById(R.id.testee_name);
-        et_testee_height = dialog.findViewById(R.id.testee_height);
-        et_testee_weight = dialog.findViewById(R.id.testee_weight);
-        et_testee_res = dialog.findViewById(R.id.testee_R);
 
-        btn_next1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testee_name = et_testee_name.getText().toString().trim();
-                testee_height = et_testee_height.getText().toString().trim();
-                testee_weight = et_testee_weight.getText().toString().trim();
-                testee_res = et_testee_res.getText().toString().trim();
-
-                dialog.setContentView(R.layout.dialog_info_sensor);
-                Window window = dialog.getWindow();
-                window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                dialog.setCanceledOnTouchOutside(false);
-                dialog.show();
-
-                btn_next2 = dialog.findViewById(R.id.btn_next2);
-                et_sensor_name = dialog.findViewById(R.id.sensor_name);
-                et_res_e = dialog.findViewById(R.id.res_e);
-                et_res_m = dialog.findViewById(R.id.res_m);
-                et_res_r = dialog.findViewById(R.id.res_r);
-
-
-                btn_next2.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        sensor_name = et_sensor_name.getText().toString().trim();
-                        res_e = et_res_e.getText().toString().trim();
-                        res_m = et_res_m.getText().toString().trim();
-                        res_r = et_res_r.getText().toString().trim();
-
-                        dialog.setContentView(R.layout.dialog_info_weather);
-                        Window window = dialog.getWindow();
-                        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        dialog.setCanceledOnTouchOutside(false);
-                        dialog.show();
-                        btn_save = dialog.findViewById(R.id.btn_log_save);
-                        et_humid = dialog.findViewById(R.id.humid);
-                        et_temp = dialog.findViewById(R.id.temp);
-
-
-                        btn_save.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                humid = et_humid.getText().toString().trim();
-                                temp = et_temp.getText().toString().trim();
-                                Toast.makeText (MainActivity.this, "Saved", Toast.LENGTH_SHORT).show ();
-                                saveData.save(data1Save,testee_name,sensor_name,
-                                        testee_height + "cm, " + testee_weight + "kg, R(body) = " + testee_res + "KOhm",
-                                        "M = " + res_m +", E = " + res_e + ", R = " + res_r + " (KOhm)",
-                                        "Temperature: " + temp + "°C, RH: " + humid + "%");
-                                resetData();
-                                dialog.dismiss();
-                            }
-                        });
-                    }
-                });
-
+        final String addUser = "Add user info before saving data";
+        final String addSensor = "Add user info before saving data";
+         dbManager = new DBManager(MainActivity.this);
+        listUser = new ArrayList<>();
+        listUser.add("Select testee");
+        listSensor = new ArrayList<>();
+        listSensor.add("Select sensor");
+        ArrayList<String> getNameUser = new ArrayList<>();
+        ArrayList<String> getTypeSensor = new ArrayList<>();
+        getNameUser = dbManager.getAllUsersName();
+        getTypeSensor = dbManager.getAllSensorType();
+        if (getNameUser.isEmpty()) {
+           listUser.add(addUser);
+        } else {
+            for (int i = 0; i < dbManager.NumberOfUsers(); i++) {
+                listUser.add(getNameUser.get(i));
+            } }
+        if (getTypeSensor.isEmpty()) {
+            listSensor.add(addSensor);
+        } else {
+            for (int j = 0; j < dbManager.NumberOfSensors(); j++) {
+                listSensor.add(getTypeSensor.get(j));
             }
-        });
+        }
+
+
+        //Spinner setup for selecting testee
+        {
+            final Spinner spinner = dialog.findViewById(R.id.spinner);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    this,
+                    R.layout.custom_spinner,
+                    listUser
+            ) {
+                @Override
+                public boolean isEnabled(int position){
+                    if(position == 0)
+                    { return false; }
+                    else { return true; }
+                }
+                @Override
+                public View getDropDownView(int position, View convertView,
+                                            ViewGroup parent) {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+                    if(position == 0){
+                        // Set the hint text color gray
+                        tv.setTextColor(Color.GRAY);
+                    }
+                    else { tv.setTextColor(Color.BLACK); }
+                    return view;
+                }
+            };
+            adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                    String selectedItem = spinner.getItemAtPosition(position).toString();
+                    if (selectedItem.equals(addUser)) {
+                        Intent intentAddUser = new Intent(MainActivity.this, Add_User_Activity.class);
+                        startActivity(intentAddUser);
+                    }
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+        }
+
+        //Spinner setup for selecting sensor
+        {
+            final Spinner spinner2 = dialog.findViewById(R.id.spinner2);
+            ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(
+                    this,
+                    R.layout.custom_spinner,
+                    listSensor
+            ) {
+                @Override
+                public boolean isEnabled(int position){
+                    if(position == 0)
+                    { return false; }
+                    else
+                    { return true; }
+                }
+                @Override
+                public View getDropDownView(int position, View convertView,
+                                            ViewGroup parent) {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+                    if(position == 0){
+                        // Set the hint text color gray
+                        tv.setTextColor(Color.GRAY);
+                    }
+                    else { tv.setTextColor(Color.BLACK); }
+                    return view;
+                }
+            };
+            adapter2.setDropDownViewResource(R.layout.custom_spinner_dropdown);
+            spinner2.setAdapter(adapter2);
+            spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                    String selectedItem = spinner2.getItemAtPosition(position).toString();
+
+                    Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_LONG).show();
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+        }
     }
 
 }

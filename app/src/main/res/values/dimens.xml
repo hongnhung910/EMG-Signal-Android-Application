@@ -16,4 +16,5 @@
     <dimen name="mini_padding">5dp</dimen>
     <dimen name="dialog_height">200dp</dimen>
     <dimen name="fill_text">80dp</dimen>
+    <dimen name="high_spinner">40dp</dimen>
 </resources>
