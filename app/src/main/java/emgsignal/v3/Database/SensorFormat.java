@@ -1,4 +1,4 @@
-package emgsignal.v3;
+package emgsignal.v3.Database;
 
 public class SensorFormat {
     String type, resMid, resEnd, resRef, id;

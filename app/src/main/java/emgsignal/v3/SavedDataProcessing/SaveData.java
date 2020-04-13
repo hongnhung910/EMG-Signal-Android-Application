@@ -1,4 +1,4 @@
-package emgsignal.v3;
+package emgsignal.v3.SavedDataProcessing;
 
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -13,28 +13,22 @@ import java.util.Calendar;
 
 public class SaveData extends AppCompatActivity {
 
-    public void save(final ArrayList<Double> dataSave,
-                     String name_testee, String type_sensor, String testee_info, String sensor_res, String environment) {
+    public void save(final ArrayList<Double> dataSave, String username) {
 
                     File sdCard = Environment.getExternalStorageDirectory();
                     if (sdCard.exists()) {
-                        File publicDcimDirPath = new File(sdCard.getAbsolutePath() + "/EMG_Data");
+                        File publicDcimDirPath = new File(sdCard.getAbsolutePath() + "/EMG_Data/" + username);
 
                         if (!publicDcimDirPath.exists()) {
                             publicDcimDirPath.mkdirs();
                             Log.i("making", "Creating Directory: " + publicDcimDirPath);
                         }
-                        String nameFile = getDate() + '_' + name_testee + '_' + type_sensor;
-
+                        String nameFile = getDate();
                         File newFile = new File(publicDcimDirPath, nameFile+".txt");
 
                         OutputStreamWriter writer = null;
                         try {
                             writer = new OutputStreamWriter(new FileOutputStream(newFile));
-                            writer.write("Testee: " + name_testee + ", " + testee_info + "\n"
-                                    + "Sensor: " + type_sensor + ", " + sensor_res + "\n"
-                                    + environment + "\n"
-                                    +"----------------------- \n");
                             for (int i = 0; i < dataSave.size(); i++) {
                                 Log.i("writer", "Writing to file");
                                 writer.write((dataSave.get(i) + "\n"));

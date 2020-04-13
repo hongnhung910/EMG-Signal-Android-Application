@@ -1,4 +1,6 @@
-package emgsignal.v3;
+package emgsignal.v3.SignalProcessing;
+
+import emgsignal.v3.SignalProcessing.Complex;
 
 public class FFT {
 

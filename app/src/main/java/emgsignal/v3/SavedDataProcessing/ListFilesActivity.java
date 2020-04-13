@@ -1,8 +1,7 @@
 /*Show data files saved in external storage*/
 
-package emgsignal.v3;
+package emgsignal.v3.SavedDataProcessing;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,13 +9,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -24,35 +21,34 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import emgsignal.v3.R;
+
 
 public class ListFilesActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 100;
     ArrayList<String> myList;
-    ListView listview;
-    ArrayList<String> ArrayData;
+    ListView listView;
+    ArrayList<String> ArrayData = new ArrayList<>();
+    String nameFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_files);
-        listview = findViewById(R.id.list);
+        setContentView(R.layout.list_datafile);
+        Intent getNameFolder = getIntent();
+        nameFolder = getNameFolder.getStringExtra("NameFolder");
+        listView = findViewById(R.id.list_dataFile);
         myList = new ArrayList<>();
-
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             if (Build.VERSION.SDK_INT >= 23) {
                 if (checkPermission()) {
-                    File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/EMG_Data");
+                    File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/EMG_Data/"+nameFolder);
                     if (dir.exists()) {
                         Log.d("path", dir.toString());
                         File[] list = dir.listFiles();
@@ -61,13 +57,13 @@ public class ListFilesActivity extends AppCompatActivity {
                             myList.add(list[i].getName());
                         }
                         ArrayAdapter arrayAdapter = new ArrayAdapter(ListFilesActivity.this, android.R.layout.simple_list_item_1, myList);
-                        listview.setAdapter(arrayAdapter);
+                        listView.setAdapter(arrayAdapter);
                     }
                 } else {
                     requestPermission(); // Code for permission
                 }
             } else {
-                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/EMG_Data");
+                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/EMG_Data/"+nameFolder);
 
                 if (dir.exists()) {
                     Log.d("path", dir.toString());
@@ -76,16 +72,16 @@ public class ListFilesActivity extends AppCompatActivity {
                         myList.add(list[i].getName());
                     }
                     ArrayAdapter arrayAdapter = new ArrayAdapter(ListFilesActivity.this, android.R.layout.simple_list_item_1, myList);
-                    listview.setAdapter(arrayAdapter);
+                    listView.setAdapter(arrayAdapter);
                 }
             }
         }
 
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/EMG_Data/"+ myList.get(position));
+                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/EMG_Data/"+nameFolder+"/"+ myList.get(position));
                 ArrayData = ReadFile(file);
 
 
@@ -105,27 +101,28 @@ public class ListFilesActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
     }
 
-    private ArrayList<String> ReadFile (File file)
-    {
+    private ArrayList<String> ReadFile(File file) {
 
-        String line = null;
-        ArrayList<String> lines = new ArrayList<String>();
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+                String line = null;
+                ArrayList<String> lines = new ArrayList<>();
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 
-            while ((line = bufferedReader.readLine()) != null)
-            {
-                lines.add(line);
+                    while ((line = bufferedReader.readLine()) != null) {
+                        lines.add(line);
+                    }
+
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return lines;
             }
 
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lines;
-        }
 
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(ListFilesActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE);

@@ -1,8 +1,8 @@
-package emgsignal.v3;
+package emgsignal.v3.SignalProcessing;
 
 public class Complex {
-    private final double re; // the real part
-    private final double im; // the imaginary part
+    public final double re; // the real part
+    public final double im; // the imaginary part
 
     // create a new object with the given real and imaginary parts
     public Complex(double real, double imag) {

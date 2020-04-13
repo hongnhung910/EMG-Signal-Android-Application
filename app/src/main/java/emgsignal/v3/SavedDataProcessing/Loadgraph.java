@@ -1,27 +1,22 @@
-package emgsignal.v3;
+package emgsignal.v3.SavedDataProcessing;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+
+import emgsignal.v3.R;
+import emgsignal.v3.SignalProcessing.Complex;
+import emgsignal.v3.SignalProcessing.FFT;
+import emgsignal.v3.SignalProcessing.Helper;
 
 public class Loadgraph extends AppCompatActivity {
     private LineGraphSeries<DataPoint> fftSeries, timeSeries, dB_fftSeries;

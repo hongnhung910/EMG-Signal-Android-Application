@@ -21,7 +21,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package emgsignal.v3;
+package emgsignal.v3.BLE;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

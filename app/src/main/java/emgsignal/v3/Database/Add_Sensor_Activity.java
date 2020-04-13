@@ -1,4 +1,4 @@
-package emgsignal.v3;
+package emgsignal.v3.Database;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import emgsignal.v3.R;
 
 public class Add_Sensor_Activity extends AppCompatActivity {
     private EditText et_type, et_resMid, et_resEnd, et_resRef;

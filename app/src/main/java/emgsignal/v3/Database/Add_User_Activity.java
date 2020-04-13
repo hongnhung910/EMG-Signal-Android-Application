@@ -1,10 +1,9 @@
-package emgsignal.v3;
+package emgsignal.v3.Database;
 
 import android.app.DatePickerDialog;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -14,6 +13,8 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import emgsignal.v3.R;
 
 public class Add_User_Activity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
     private EditText testee_name, testee_height, testee_weight, testee_res, testee_birthday;

@@ -14,7 +14,7 @@
         android:padding="@dimen/small_padding"
         android:textColor="@color/ap_white"/>
     <ListView
-        android:id = "@+id/list"
+        android:id = "@+id/listFiles"
         android:layout_width = "match_parent"
         android:layout_height = "wrap_content">
 

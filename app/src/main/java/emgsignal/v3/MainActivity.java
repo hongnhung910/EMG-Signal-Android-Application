@@ -40,7 +40,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +51,17 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import emgsignal.v3.BLE.Constants;
+import emgsignal.v3.BLE.DeviceListActivity;
+import emgsignal.v3.Database.Add_Sensor_Activity;
+import emgsignal.v3.Database.Add_User_Activity;
+import emgsignal.v3.Database.DBManager;
+import emgsignal.v3.SavedDataProcessing.ExternalStorageUtil;
+import emgsignal.v3.SavedDataProcessing.ListFilesActivity;
+import emgsignal.v3.SavedDataProcessing.ListFolderActivity;
+import emgsignal.v3.SavedDataProcessing.SaveData;
+import emgsignal.v3.SignalProcessing.IIR_Filter;
 
 
 public class MainActivity extends AppCompatActivity
@@ -100,10 +110,7 @@ public class MainActivity extends AppCompatActivity
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
 
-    private Button btn_save;
-    private EditText et_user;
-    private String testee_name, testee_height, testee_weight, testee_res, sensor_name, res_m, res_r, res_e, humid, temp;
-    private DBManager dbManager;
+
     private ArrayList<String> listUser, listSensor;
 
     @Override
@@ -161,10 +168,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        for (int i=0; i<100; i++){
-            data1Save.add(i + 0.1);
-        }
-
         // Handle Save emgsignal.v3.data function
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,13 +176,16 @@ public class MainActivity extends AppCompatActivity
                 { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
                 else*/ {
                     if (btnSaveData.getText().equals("Save")) {
+                        data1Save = new ArrayList<>();
+                        for (int i=0; i<100; i++){
+                            data1Save.add(i + 0.1);
+                        }
                         btnSaveData.setText("Saving");
                         isSaving = true;
                         startTime = SystemClock.uptimeMillis();
                         customHandler.postDelayed(updateTimerThread, 0);
                     }
                     else {
-                        //timeSwapBuff += timeInMilliseconds;
                         timeSwapBuff = 0;
                         customHandler.removeCallbacks(updateTimerThread);
                         mService.disconnect();
@@ -576,7 +582,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_home:
                 break;
             case R.id.menu_saved_data:
-                Intent intent = new Intent(MainActivity.this, ListFilesActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListFolderActivity.class);
                 startActivity(intent);
                 break;
             case R.id.menu_add_user:
@@ -645,10 +651,9 @@ public class MainActivity extends AppCompatActivity
         window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
-
         final String addUser = "Add user info before saving data";
-        final String addSensor = "Add user info before saving data";
-         dbManager = new DBManager(MainActivity.this);
+        final String addSensor = "Add sensor info before saving data";
+        DBManager dbManager = new DBManager(MainActivity.this);
         listUser = new ArrayList<>();
         listUser.add("Select testee");
         listSensor = new ArrayList<>();
@@ -673,7 +678,6 @@ public class MainActivity extends AppCompatActivity
 
 
         //Spinner setup for selecting testee
-        {
             final Spinner spinner = dialog.findViewById(R.id.spinner);
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                     this,
@@ -682,8 +686,7 @@ public class MainActivity extends AppCompatActivity
             ) {
                 @Override
                 public boolean isEnabled(int position){
-                    if(position == 0)
-                    { return false; }
+                    if(position == 0) { return false; }
                     else { return true; }
                 }
                 @Override
@@ -704,10 +707,11 @@ public class MainActivity extends AppCompatActivity
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                    String selectedItem = spinner.getItemAtPosition(position).toString();
-                    if (selectedItem.equals(addUser)) {
+                    String selectedUser = spinner.getItemAtPosition(position).toString();
+                    if (selectedUser.equals(addUser)) {
                         Intent intentAddUser = new Intent(MainActivity.this, Add_User_Activity.class);
                         startActivity(intentAddUser);
+                        dialog.dismiss();
                     }
                 }
                 @Override
@@ -715,22 +719,19 @@ public class MainActivity extends AppCompatActivity
 
                 }
             });
-        }
+
 
         //Spinner setup for selecting sensor
-        {
             final Spinner spinner2 = dialog.findViewById(R.id.spinner2);
-            ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(
+            ArrayAdapter<String> adapter2  = new ArrayAdapter<String>(
                     this,
                     R.layout.custom_spinner,
                     listSensor
             ) {
                 @Override
                 public boolean isEnabled(int position){
-                    if(position == 0)
-                    { return false; }
-                    else
-                    { return true; }
+                    if(position == 0) { return false; }
+                    else { return true; }
                 }
                 @Override
                 public View getDropDownView(int position, View convertView,
@@ -750,16 +751,31 @@ public class MainActivity extends AppCompatActivity
             spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                    String selectedItem = spinner2.getItemAtPosition(position).toString();
-
-                    Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_LONG).show();
+                    String selectedSensor = spinner2.getItemAtPosition(position).toString();
+                    if (selectedSensor.equals(addSensor)) {
+                        Intent intentAddSensor = new Intent(MainActivity.this, Add_User_Activity.class);
+                        startActivity(intentAddSensor);
+                        dialog.dismiss();
+                    }
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
 
                 }
             });
-        }
+
+        Button btnSave = dialog.findViewById(R.id.Dialog_btnSave);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String selectedUser = spinner.getSelectedItem().toString().trim();
+                String selectedSensor = spinner2.getSelectedItem().toString().trim();
+                saveData.save(data1Save, selectedUser);
+                Toast.makeText(MainActivity.this, "Data saved successfully",Toast.LENGTH_SHORT).show();
+                resetData();
+                dialog.dismiss();
+            }
+        });
     }
 
 }

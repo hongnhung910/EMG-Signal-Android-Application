@@ -12,11 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="LockedOrientationActivity">
-        <activity android:name=".Add_Sensor_Activity"
+        <activity android:name=".Database.Add_Sensor_Activity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".Add_User_Activity"
+            android:name=".Database.Add_User_Activity"
             android:screenOrientation="portrait">
         </activity>
         <activity
@@ -35,15 +35,16 @@
             android:screenOrientation="landscape"
             tools:ignore="LockedOrientationActivity" />
         <activity
-            android:name=".DeviceListActivity"
+            android:name=".BLE.DeviceListActivity"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Dialog" />
-        <activity android:name=".ListFilesActivity" />
-        <activity android:name=".SaveData" />
+        <activity android:name=".SavedDataProcessing.ListFilesActivity" />
+        <activity android:name=".SavedDataProcessing.ListFolderActivity" />
+        <activity android:name=".SavedDataProcessing.SaveData" />
         <activity
-            android:name=".Loadgraph"
+            android:name=".SavedDataProcessing.Loadgraph"
             android:screenOrientation="landscape"
             tools:ignore="LockedOrientationActivity" />
 
@@ -57,7 +58,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 </manifest>

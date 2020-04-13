@@ -1,4 +1,4 @@
-package emgsignal.v3;
+package emgsignal.v3.SignalProcessing;
 
 public class Helper {
     public static boolean check(int n) {

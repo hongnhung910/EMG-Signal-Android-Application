@@ -131,7 +131,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/btn_next1"
+            android:id="@+id/Dialog_btnSave"
             android:layout_width="@dimen/sizeButton"
             android:layout_height="wrap_content"
             android:background="@drawable/clicked_button"
