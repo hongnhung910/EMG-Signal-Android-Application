@@ -46,7 +46,7 @@ public class Add_User_Activity extends AppCompatActivity implements DatePickerDi
             @Override
             public void onClick(View v) {
                 dbManager = new DBManager(Add_User_Activity.this);
-                testee_id = testee_birthday.getText().toString().replace("/", "");
+                testee_id = testee_name.getText().toString().trim()+"-"+testee_birthday.getText().toString().replace("/", "");
                 dbManager.addUser(new UserFormat(
                         testee_name.getText().toString().trim(),
                         testee_birthday.getText().toString().trim(),

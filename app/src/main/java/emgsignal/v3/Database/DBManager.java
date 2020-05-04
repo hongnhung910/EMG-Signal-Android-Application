@@ -136,6 +136,31 @@ public class DBManager extends SQLiteOpenHelper {
         return username;
     }
 
+    public ArrayList<String> getAllUsersId() {
+        String[] columns = {USER_ID};
+        String sortOrder = USER_ID + " ASC";
+        ArrayList<String> userid = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USER, //Table to query
+                columns,    //columns to return
+                null,        //columns for the WHERE clause
+                null,        //The values for the WHERE clause
+                null,       //group the rows
+                null,       //filter by row groups
+                sortOrder); //The sort order
+        if (cursor.moveToFirst()) {
+            do {
+                String id = cursor.getString(cursor.getColumnIndex(USER_ID));
+                userid.add(id);
+                // Adding user record to list
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        Log.i(TAG, "getAllUsersName: " + userid);
+        return userid;
+    }
+
     public ArrayList<String> getAllSensorType() {
         String[] columns = {TYPE};
         ArrayList<String> sensorType = new ArrayList<>();
@@ -164,7 +189,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.delete(TABLE_USER,USER_ID + " = " + id,null);
         db.close();
     }
-    UserFormat getUser(String id) {
+    public UserFormat getUser(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_USER, new String[] { NAME, BIRTHDAY, HEIGHT, WEIGHT, BODY_RES },
@@ -179,7 +204,7 @@ public class DBManager extends SQLiteOpenHelper {
         user.setHeight(cursor.getString(2));
         user.setWeight(cursor.getString(3));
         user.setBody_res(cursor.getString(4));
-        user.setId(cursor.getString(5));
+        user.setId(id);
         return user;
     }
     public int NumberOfUsers() {
@@ -191,6 +216,24 @@ public class DBManager extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT  * FROM " + TABLE_SENSOR, null);
         return cursor.getCount();
+    }
+    public SensorFormat getSensor(String sensor_type) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_SENSOR, new String[] { RES_MID , RES_END , RES_REF , SENSOR_ID },
+                TYPE + "=?",
+                new String[] { sensor_type }, null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        SensorFormat sensor = new SensorFormat(
+                sensor_type,
+                cursor.getString(0),
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3)
+        );
+        return sensor;
     }
     /*public void clearDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();

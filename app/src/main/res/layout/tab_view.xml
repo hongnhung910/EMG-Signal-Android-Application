@@ -51,6 +51,53 @@
                                 android:layout_marginBottom="@dimen/general_margin"
                                 android:layout_marginTop="@dimen/general_margin"/>
                         </LinearLayout>
+                        <Button
+                            android:id="@+id/yout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Y-out"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="100dp"
+                            />
+                        <TextView
+                            android:id="@+id/ytimes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="90dp"
+                            android:layout_marginTop="15dp"
+                            />
+                        <Button
+                            android:id="@+id/yin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Y-in"
+                            android:layout_alignParentRight="true"
+                            />
+                        <Button
+                            android:id="@+id/xout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="X-out"
+                            android:layout_marginRight="300dp"
+                            android:layout_alignParentRight="true"
+                            />
+                        <TextView
+                            android:id="@+id/xtimes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:layout_marginRight="290dp"
+                            android:layout_alignParentRight="true"
+                            />
+                        <Button
+                            android:id="@+id/xin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="X-in"
+                            android:layout_marginRight="200dp"
+                            android:layout_alignParentRight="true"
+                            />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -78,17 +125,10 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:background="@color/ap_white">
-                    <LinearLayout
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Power Spectrum"
-                            android:padding="@dimen/small_padding"
-                            android:textColor="@color/colorPrimaryDark"/>
-
+                        android:layout_height="40dp"
+                        android:background="@color/ap_white">
                         <RadioGroup
                             android:id="@+id/group_radio"
                             android:layout_width="wrap_content"
@@ -98,7 +138,7 @@
                                 android:id="@+id/rd_fft_unit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Linear"
+                                android:text="FFT Unit"
                                 android:textColor="@color/colorPrimary"
                                 android:checked="true"
                                 android:onClick="onRadioButtonClicked"/>
@@ -106,12 +146,61 @@
                                 android:id="@+id/rd_db_unit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="dB"
+                                android:text="dB/Hz"
                                 android:textColor="@color/colorPrimary"
                                 android:layout_marginLeft="@dimen/small_padding"
                                 android:onClick="onRadioButtonClicked"/>
                         </RadioGroup>
-                    </LinearLayout>
+
+                        <Button
+                            android:id="@+id/yFout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Y-out"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="100dp"
+                            />
+                        <TextView
+                            android:id="@+id/yFtimes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="90dp"
+                            android:layout_marginTop="15dp"
+                            />
+                        <Button
+                            android:id="@+id/yFin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Y-in"
+                            android:layout_alignParentRight="true"
+                            />
+
+                        <Button
+                            android:id="@+id/xFout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="X-out"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="300dp"
+                            />
+                        <TextView
+                            android:id="@+id/xFtimes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="290dp"
+                            android:layout_marginTop="15dp"
+                            />
+                        <Button
+                            android:id="@+id/xFin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="X-in"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="200dp"
+                            />
+                    </RelativeLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"

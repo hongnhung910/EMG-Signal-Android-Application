@@ -88,8 +88,10 @@ public class ListFilesActivity extends AppCompatActivity {
                 double[] timedata = new double[ArrayData.size()];
                 int[] domainLabels = new int[ArrayData.size()];
 
-                for (int i=4;i<ArrayData.size();i++) {
-                    timedata[i] = (Double.valueOf(ArrayData.get(i)));
+                for (int i=0;i<ArrayData.size();i++) {
+                    if (isNumberic(ArrayData.get(i))){
+                        timedata[i] = (Double.valueOf(ArrayData.get(i)));
+                    } else timedata[i] = 0;
                     domainLabels[i] = i;
                 }
                 Log.i("CHECKING LONG", "onItemClick: " + timedata.length);
@@ -107,21 +109,21 @@ public class ListFilesActivity extends AppCompatActivity {
 
     private ArrayList<String> ReadFile(File file) {
 
-                String line = null;
-                ArrayList<String> lines = new ArrayList<>();
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        String line = null;
+        ArrayList<String> lines = new ArrayList<>();
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 
-                    while ((line = bufferedReader.readLine()) != null) {
-                        lines.add(line);
-                    }
-
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return lines;
+            while ((line = bufferedReader.readLine()) != null) {
+                lines.add(line);
             }
+
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
+    }
 
 
     private boolean checkPermission() {
@@ -151,6 +153,16 @@ public class ListFilesActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+    private boolean isNumberic(String s) {
+        boolean numeric = true;
+
+        try {
+            Double num = Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            numeric = false;
+        }
+        return numeric;
     }
 
 }

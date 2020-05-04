@@ -13,7 +13,8 @@ import java.util.Calendar;
 
 public class SaveData extends AppCompatActivity {
 
-    public void save(final ArrayList<Double> dataSave, String username) {
+    public void save(final ArrayList<Double> dataSave, String username,  String sensor ,
+                     String testee_info , String sensor_res , String environment ) {
 
                     File sdCard = Environment.getExternalStorageDirectory();
                     if (sdCard.exists()) {
@@ -29,6 +30,10 @@ public class SaveData extends AppCompatActivity {
                         OutputStreamWriter writer = null;
                         try {
                             writer = new OutputStreamWriter(new FileOutputStream(newFile));
+                            writer.write("Tesste: " + username + ", " + testee_info + "\n"
+                                    + "Sensor: " + sensor + ", " + sensor_res + "\n"
+                                    + environment + "\n"
+                                    +"----------------------------- \n");
                             for (int i = 0; i < dataSave.size(); i++) {
                                 Log.i("writer", "Writing to file");
                                 writer.write((dataSave.get(i) + "\n"));

@@ -40,6 +40,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +58,8 @@ import emgsignal.v3.BLE.DeviceListActivity;
 import emgsignal.v3.Database.Add_Sensor_Activity;
 import emgsignal.v3.Database.Add_User_Activity;
 import emgsignal.v3.Database.DBManager;
+import emgsignal.v3.Database.SensorFormat;
+import emgsignal.v3.Database.UserFormat;
 import emgsignal.v3.SavedDataProcessing.ExternalStorageUtil;
 import emgsignal.v3.SavedDataProcessing.ListFilesActivity;
 import emgsignal.v3.SavedDataProcessing.ListFolderActivity;
@@ -109,8 +112,7 @@ public class MainActivity extends AppCompatActivity
     long timeInMilliseconds = 0L;
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
-
-
+    private EditText et_temp , et_humid;
     private ArrayList<String> listUser, listSensor;
 
     @Override
@@ -178,7 +180,7 @@ public class MainActivity extends AppCompatActivity
                     if (btnSaveData.getText().equals("Save")) {
                         data1Save = new ArrayList<>();
                         for (int i=0; i<100; i++){
-                            data1Save.add(i + 0.1);
+                            data1Save.add((Math.random() * 500) + 1700);
                         }
                         btnSaveData.setText("Saving");
                         isSaving = true;
@@ -653,20 +655,20 @@ public class MainActivity extends AppCompatActivity
         dialog.show();
         final String addUser = "Add user info before saving data";
         final String addSensor = "Add sensor info before saving data";
-        DBManager dbManager = new DBManager(MainActivity.this);
+        final DBManager dbManager = new DBManager(MainActivity.this);
         listUser = new ArrayList<>();
         listUser.add("Select testee");
         listSensor = new ArrayList<>();
         listSensor.add("Select sensor");
-        ArrayList<String> getNameUser = new ArrayList<>();
+        ArrayList<String> getUsersId = new ArrayList<>();
         ArrayList<String> getTypeSensor = new ArrayList<>();
-        getNameUser = dbManager.getAllUsersName();
+        getUsersId = dbManager.getAllUsersId();
         getTypeSensor = dbManager.getAllSensorType();
-        if (getNameUser.isEmpty()) {
+        if (getUsersId.isEmpty()) {
            listUser.add(addUser);
         } else {
             for (int i = 0; i < dbManager.NumberOfUsers(); i++) {
-                listUser.add(getNameUser.get(i));
+                listUser.add(getUsersId.get(i));
             } }
         if (getTypeSensor.isEmpty()) {
             listSensor.add(addSensor);
@@ -770,10 +772,26 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 String selectedUser = spinner.getSelectedItem().toString().trim();
                 String selectedSensor = spinner2.getSelectedItem().toString().trim();
-                saveData.save(data1Save, selectedUser);
-                Toast.makeText(MainActivity.this, "Data saved successfully",Toast.LENGTH_SHORT).show();
-                resetData();
-                dialog.dismiss();
+                et_temp = dialog.findViewById(R.id.temp);
+                et_humid = dialog.findViewById(R.id.humid);
+                String temp = et_temp.getText().toString().trim();
+                String humid = et_humid.getText().toString().trim();
+
+                if((!selectedUser.equals("Select testee")) && (!selectedSensor.equals("Select sensor")) && (!temp.equals("")) && (!humid.equals(""))){
+                    UserFormat selectedUserObject = dbManager.getUser(selectedUser);
+                    SensorFormat selectedSensorObject = dbManager.getSensor(selectedSensor);
+                    saveData.save(data1Save, selectedUser , selectedSensor ,
+                            selectedUserObject.getHeight()+"cm, "+selectedUserObject.getWeight()+"kg, R(body) = "+selectedUserObject.getBody_res()+"KOhm",
+                            "M= " + selectedSensorObject.getResMid()+", E= " + selectedSensorObject.getResEnd()+", R= "+selectedSensorObject.getResRef()+"KOhm",
+                            "Temperature: " + temp + "°C, RH: " + humid + "%" );
+                    Toast.makeText(MainActivity.this, "Data saved successfully",Toast.LENGTH_SHORT).show();
+                    resetData();
+                    dialog.dismiss();
+                }
+                else{
+                    Toast addFailed = Toast.makeText(getApplicationContext(), "You must fill all the field" , Toast.LENGTH_LONG);
+                    addFailed.show();
+                }
             }
         });
     }
