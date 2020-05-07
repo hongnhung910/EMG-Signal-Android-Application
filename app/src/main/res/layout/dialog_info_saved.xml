@@ -129,7 +129,33 @@
                 android:hint="@string/enter_humid"
                 />
         </LinearLayout>
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/small_padding">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Note"
+                android:textColor="@color/ap_white"
+                android:textSize="@dimen/text_small"
+                android:padding="@dimen/mini_padding"
+                android:background="@drawable/bg_text_title"
+                android:textStyle="bold"
+                android:gravity="center_horizontal"/>
+            <EditText
+                android:id="@+id/etNotes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:padding="@dimen/mini_padding"
+                android:textSize="@dimen/text_small"
+                android:background="@drawable/background_spinner"
+                android:layout_marginLeft="@dimen/small_padding"
+                android:hint="Enter your notes"
+                />
+        </LinearLayout>
         <Button
             android:id="@+id/Dialog_btnSave"
             android:layout_width="@dimen/sizeButton"

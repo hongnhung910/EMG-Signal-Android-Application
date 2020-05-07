@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import emgsignal.v3.R;
+import emgsignal.v3.SignalProcessing.Detrend;
 
 
 public class ListFilesActivity extends AppCompatActivity {
@@ -83,30 +84,33 @@ public class ListFilesActivity extends AppCompatActivity {
 
                 File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/EMG_Data/"+nameFolder+"/"+ myList.get(position));
                 ArrayData = ReadFile(file);
-
-
-                double[] timedata = new double[ArrayData.size()];
-                int[] domainLabels = new int[ArrayData.size()];
-
-                for (int i=0;i<ArrayData.size();i++) {
+                Detrend removeDC = new Detrend();
+                int lengthData;
+                    if (ArrayData.size()>30000) lengthData = 30000;
+                        else lengthData = ArrayData.size();
+                Log.i("CHECKING LONG", "Length of data array " + lengthData);
+                double[] timedata = new double[lengthData];
+                double[] data_removeDC = new double[lengthData];
+                for (int i=0;i<lengthData;i++) {
                     if (isNumberic(ArrayData.get(i))){
-                        timedata[i] = (Double.valueOf(ArrayData.get(i)));
+                        timedata[i] = (Double.valueOf(ArrayData.get(i)))/101;
                     } else timedata[i] = 0;
-                    domainLabels[i] = i;
+                    Log.i("CHECKING VALUE", "data " + timedata[i]);
                 }
-                Log.i("CHECKING LONG", "onItemClick: " + timedata.length);
+                data_removeDC = removeDC.detrend(timedata);
+                for (int i=0; i<4; i++) {
+                    data_removeDC[i] = 0;
+                }
+
+                Log.i("CHECKING LONG", "long data " + timedata.length);
                 Intent intent = new Intent(ListFilesActivity.this,Loadgraph.class);
                 intent.putExtra("Namefile",myList.get(position)+"");
-                intent.putExtra("TimeData",timedata);
-                intent.putExtra("Length",ArrayData.size());
-                intent.putExtra("DomainLabels",domainLabels);
+                intent.putExtra("TimeData",data_removeDC);
+                intent.putExtra("Length",timedata.length);
                 startActivity(intent);
             }
         });
-
-
     }
-
     private ArrayList<String> ReadFile(File file) {
 
         String line = null;

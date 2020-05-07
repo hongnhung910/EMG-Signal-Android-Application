@@ -102,6 +102,8 @@
     <string name="enter_temp">Enter temperature at the moment</string>
     <string name="enter_humid">Enter humidity at the moment</string>
     <string name="menu_info">Information</string>
+    <string name="fit_amplitude">Fit Amplitude</string>
+
     <string-array name="FFTgraphs">
         <item>FFT Unit</item>
         <item>DB/Hz</item>

@@ -6,6 +6,7 @@ public class UserFormat {
     private String id;
 
     public  UserFormat() {};
+
     public UserFormat(String name, String birthday, String height, String weight, String body_res, String id) {
         this.name = name;
         this.birthday = birthday;

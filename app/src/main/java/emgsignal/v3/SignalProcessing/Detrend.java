@@ -30,7 +30,7 @@ public class Detrend {
             output[i][1] = newInput[i][1] - slope*newInput[i][0] - intercept;
             y[j++] = output[i][1];
             output[i][0] = newInput[i][0];
-            Log.i("DETREND", "Check Detrend Function: input = " + newInput[i][1] +  "output = " + y[j-1]);
+            //Log.i("DETREND", "Check Detrend Function: input = " + newInput[i][1] + "  output = "+ y[j-1]);
         }
         return y;
     }

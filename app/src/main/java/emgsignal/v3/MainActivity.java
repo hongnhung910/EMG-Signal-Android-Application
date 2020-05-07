@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity
     long updatedTime = 0L;
     private EditText et_temp , et_humid;
     private ArrayList<String> listUser, listSensor;
-
+    private int secs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity
         btnConnectDisconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                data1Save.clear();
+
                 if (!mBtAdapter.isEnabled()) {
                     Log.i(TAG, "onClick - BT not enabled yet");
                     Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -174,18 +174,17 @@ public class MainActivity extends AppCompatActivity
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*if(data1Save.size() == 0)
+                if(data1Save.size() == 0)
                 { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
-                else*/ {
+                else {
                     if (btnSaveData.getText().equals("Save")) {
-                        data1Save = new ArrayList<>();
-                        for (int i=0; i<100; i++){
-                            data1Save.add((Math.random() * 500) + 1700);
-                        }
+                        data1Save.clear();
                         btnSaveData.setText("Saving");
                         isSaving = true;
                         startTime = SystemClock.uptimeMillis();
                         customHandler.postDelayed(updateTimerThread, 0);
+
+
                     }
                     else {
                         timeSwapBuff = 0;
@@ -204,6 +203,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 mService.disconnect();
                 btnConnectDisconnect.setText("Connect");
+                btnSaveData.setText("Save");
                 resetData();
             }
         });
@@ -218,6 +218,8 @@ public class MainActivity extends AppCompatActivity
                 new DataPoint(lastX1, 0)
         });
         initGraphMaternal();
+        timeSwapBuff = 0;
+        customHandler.removeCallbacks(updateTimerThread);
         timerValue.setText("00 sec");
     }
 
@@ -245,10 +247,7 @@ public class MainActivity extends AppCompatActivity
         graph.getGridLabelRenderer().setNumVerticalLabels(5);
         graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
         graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
-
-
         graph.getGridLabelRenderer().setLabelsSpace(5);
-
         graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
             @Override
             public String formatLabel(double value, boolean isValueX) {
@@ -329,16 +328,15 @@ public class MainActivity extends AppCompatActivity
                     emg[i] = (txValue[i*4+2]&0xff&0x3f) + (txValue[i*4+3]&0xff&0x3f)*64;
 
                     // for 50Hz filter
-                    filter_input1 = filter.update_input_filter_array50Hz(filter_input1, emg[i]);
+                    /*filter_input1 = filter.update_input_filter_array50Hz(filter_input1, emg[i]);
                     double filtered_point_emg = filter.filter50Hz(filter_input1, filter_output1);
-                    filter_output1 = filter.update_output_filter_array50Hz(filter_output1, filtered_point_emg);
+                    filter_output1 = filter.update_output_filter_array50Hz(filter_output1, filtered_point_emg);*/
 
                     /*filtered_point_emg = filtered_point_emg-1650;
                     if(filtered_point_emg<0)
                     {
                         filtered_point_emg=-filtered_point_emg;
                     }*/
-
                     // for envelope low pass 10Hz
                     /*filter.update_input_filter_array10Hz(filter_input_for_envelope,filtered_point_emg);
                     double filter_out_putpoint_envelope=filter.filter10Hz(filter_input_for_envelope,filter_output_for_envelope);
@@ -350,14 +348,14 @@ public class MainActivity extends AppCompatActivity
 
                     // plot the filtered emgsignal.v3.data points or raw emgsignal.v3.data
                     /*
-
                     Log.d(TAG, lastX1++ + ", " + filter_out_putpoint_envelope);*/
                     /*data1Save.add(filter_out_putpoint_envelope);
                     EMG_series.add(filter_out_putpoint_envelope);*/
-                    data1Save.add(filtered_point_emg);
+
+                    data1Save.add(emg[i]);
                     lastX1=lastX1 + 1/fs;
-                    series_maternal.appendData(new DataPoint(lastX1,filtered_point_emg), true, 10000);
-                    Log.d(TAG, lastX1++ + ", " + filtered_point_emg);
+                    series_maternal.appendData(new DataPoint(lastX1,emg[i]), true, 10000);
+                    Log.d(TAG, lastX1++ + ", " + emg[i]);
                 }
             }
             //*********************//
@@ -608,7 +606,7 @@ public class MainActivity extends AppCompatActivity
         public void run() {
             timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
             updatedTime = timeSwapBuff + timeInMilliseconds;
-            int secs = (int) (updatedTime / 1000);
+            secs = (int) (updatedTime / 1000);
             secs = secs % 60;
             timerValue.setText(String.format("%02d", secs) +" sec");
             customHandler.postDelayed(this, 0);
