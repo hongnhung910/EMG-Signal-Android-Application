@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity
     long timeInMilliseconds = 0L;
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
-    private EditText et_temp , et_humid;
+    private EditText et_temp , et_humid, et_notes;;
     private ArrayList<String> listUser, listSensor;
     private int secs;
     @Override
@@ -772,22 +772,39 @@ public class MainActivity extends AppCompatActivity
                 String selectedSensor = spinner2.getSelectedItem().toString().trim();
                 et_temp = dialog.findViewById(R.id.temp);
                 et_humid = dialog.findViewById(R.id.humid);
+                et_notes = dialog.findViewById(R.id.etNotes);
                 String temp = et_temp.getText().toString().trim();
                 String humid = et_humid.getText().toString().trim();
 
+                String notes = et_notes.getText().toString().trim();
+                //character that not allowed in filenames https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+                char[] chars_note = notes.toCharArray();
+                char[] chars_note2 = new char[chars_note.length];
+                int a = 0, b = 0;
+                while(a < chars_note.length)
+                {
+                    if(chars_note[a] != '*' && chars_note[a] != '/')
+                    {
+                        chars_note2[b++] = chars_note[a];
+                    } else chars_note2[b++] = ' ';
+                    a++;
+                }
+                notes = String.valueOf(chars_note2);
+                notes.replaceAll("\\s+", "");
+                Log.i(TAG, "CHECK SAVE NOTE: " + notes);
                 if((!selectedUser.equals("Select testee")) && (!selectedSensor.equals("Select sensor")) && (!temp.equals("")) && (!humid.equals(""))){
                     UserFormat selectedUserObject = dbManager.getUser(selectedUser);
                     SensorFormat selectedSensorObject = dbManager.getSensor(selectedSensor);
                     saveData.save(data1Save, selectedUser , selectedSensor ,
                             selectedUserObject.getHeight()+"cm, "+selectedUserObject.getWeight()+"kg, R(body) = "+selectedUserObject.getBody_res()+"KOhm",
                             "M= " + selectedSensorObject.getResMid()+", E= " + selectedSensorObject.getResEnd()+", R= "+selectedSensorObject.getResRef()+"KOhm",
-                            "Temperature: " + temp + "°C, RH: " + humid + "%" );
+                            "Temperature: " + temp + "°C, RH: " + humid + "%", notes );
                     Toast.makeText(MainActivity.this, "Data saved successfully",Toast.LENGTH_SHORT).show();
                     resetData();
                     dialog.dismiss();
                 }
                 else{
-                    Toast addFailed = Toast.makeText(getApplicationContext(), "You must fill all the field" , Toast.LENGTH_LONG);
+                    Toast addFailed = Toast.makeText(getApplicationContext(), "All the fields must be filled and contain no invalid characters" , Toast.LENGTH_LONG);
                     addFailed.show();
                 }
             }

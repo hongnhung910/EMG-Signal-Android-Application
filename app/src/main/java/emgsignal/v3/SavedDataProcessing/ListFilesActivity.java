@@ -2,6 +2,7 @@
 
 package emgsignal.v3.SavedDataProcessing;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -36,7 +38,7 @@ public class ListFilesActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<String> ArrayData = new ArrayList<>();
     String nameFolder;
-
+    private ArrayAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +110,51 @@ public class ListFilesActivity extends AppCompatActivity {
                 intent.putExtra("TimeData",data_removeDC);
                 intent.putExtra("Length",timedata.length);
                 startActivity(intent);
+            }
+        });
+
+        //long click delete file
+        adapter = new ArrayAdapter(ListFilesActivity.this , android.R.layout.simple_list_item_1 , myList);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                final int which_item = position;
+                final String item = parent.getItemAtPosition(position).toString() ;
+                //get name of the file want to delete
+
+                new AlertDialog.Builder(ListFilesActivity.this)
+                        .setTitle("Do you want to delete this item?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                String path = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/EMG_Data/" + nameFolder + "/" + myList.get(position);
+                                Log.d("pathmother", path);
+                                File file = new File(path);
+                                boolean deleted = false;
+                                if(file.exists()){
+                                    Log.d("ReadFile: ", "file's found");
+                                    deleted = file.delete();
+                                }else{
+                                    Log.d("ReadFileException: ", "cannot find the file");
+                                }
+
+                                if(deleted == true) {
+                                    myList.remove(which_item);
+                                    adapter.notifyDataSetChanged();
+                                    Toast toastSuccess = Toast.makeText(getApplicationContext() , item + " is deleted" , Toast.LENGTH_LONG);
+                                    toastSuccess.show();
+                                }else{
+                                    Toast toastFailed = Toast.makeText(getApplicationContext() , item + " is not deleted, failed" , Toast.LENGTH_LONG);
+                                    toastFailed.show();
+                                }
+                            }
+                        })
+                        .setNegativeButton("No" , null)
+                        .show();
+                return true;
             }
         });
     }

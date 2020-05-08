@@ -14,7 +14,7 @@ import java.util.Calendar;
 public class SaveData extends AppCompatActivity {
 
     public void save(final ArrayList<Double> dataSave, String username,  String sensor ,
-                     String testee_info , String sensor_res , String environment ) {
+                     String testee_info , String sensor_res , String environment, String notes ) {
 
                     File sdCard = Environment.getExternalStorageDirectory();
                     if (sdCard.exists()) {
@@ -24,7 +24,11 @@ public class SaveData extends AppCompatActivity {
                             publicDcimDirPath.mkdirs();
                             Log.i("making", "Creating Directory: " + publicDcimDirPath);
                         }
+                        //get name of user
+                        int index = username.indexOf('-');
+                        String substring = username.substring(0,index).replaceAll("\\s+", "");
                         String nameFile = getDate();
+                        nameFile = nameFile +"_"+ substring + "_" +  notes;
                         File newFile = new File(publicDcimDirPath, nameFile+".txt");
 
                         OutputStreamWriter writer = null;

@@ -223,6 +223,7 @@ public class Loadgraph extends AppCompatActivity {
             graph.getViewport().setMinY(minY);
             graph.getViewport().setMaxY(maxY);
             graph.getGridLabelRenderer().setNumVerticalLabels(10);
+            graph.getGridLabelRenderer().setNumHorizontalLabels(20);
         }
     }
     public void drawFrequencyGraph(GraphView graph , LineGraphSeries graphSeries , double minY , double maxY , double maxX){
