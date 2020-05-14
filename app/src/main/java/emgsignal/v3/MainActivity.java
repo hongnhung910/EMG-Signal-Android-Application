@@ -174,9 +174,9 @@ public class MainActivity extends AppCompatActivity
         btnSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*if(data1Save.size() == 0)
+                if(data1Save.size() == 0)
                 { Toast.makeText(MainActivity.this, "No EMG signal data available yet", Toast.LENGTH_SHORT).show();}
-                else*/ {
+                else {
                     if (btnSaveData.getText().equals("Save")) {
                         data1Save.clear();
                         btnSaveData.setText("Saving");
