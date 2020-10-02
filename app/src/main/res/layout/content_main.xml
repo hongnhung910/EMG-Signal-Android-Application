@@ -111,6 +111,14 @@
                     android:layout_height="wrap_content"
                     android:text="Reset"
                     android:background="@drawable/clicked_button"
+                    android:textColor="@color/colorAccent"
+                    android:layout_marginBottom="@dimen/small_padding"/>
+                <Button
+                    android:id="@+id/btn_sendTime"
+                    android:layout_width="@dimen/sizeButton"
+                    android:layout_height="wrap_content"
+                    android:text="Send Time"
+                    android:background="@drawable/clicked_button"
                     android:textColor="@color/colorAccent"/>
             </LinearLayout>
 

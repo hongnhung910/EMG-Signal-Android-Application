@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     private UartService mService = null;
     private BluetoothDevice mDevice = null;
     private BluetoothAdapter mBtAdapter = null;   // The BluetoothAdapter is required for any and all Bluetooth activity
-    private Button btnConnectDisconnect, btnSaveData, btnReset;
+    private Button btnConnectDisconnect, btnSaveData, btnReset, btnSendTime;
     private DeviceListActivity deviceListActivity;
     byte[] txValue;
     int fs=1000;
@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity
     private EditText et_temp , et_humid, et_notes;;
     private ArrayList<String> listUser, listSensor;
     private int secs;
+    private String mode = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity
 
         btnSaveData = findViewById(R.id.btn_saveData);
         btnReset = findViewById(R.id.btn_reset);
+        btnSendTime = findViewById(R.id.btn_sendTime);
         timerValue = findViewById(R.id.timerValue);
         mBtAdapter = BluetoothAdapter.getDefaultAdapter(); // lay gia tri default ban dau la null
 
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        btnConnectDisconnect=findViewById(R.id.btn_connect);
+        btnConnectDisconnect = findViewById(R.id.btn_connect);
         service_init();
 
         // Handle Disconnect & Connect button
@@ -158,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                 else {
 
                     if (btnConnectDisconnect.getText().equals("Connect")){
-                        Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class); // chuyen qua device list activity
+                           Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class); // chuyen qua device list activity
                         startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
 
                     } else {
@@ -205,6 +207,14 @@ public class MainActivity extends AppCompatActivity
                 btnConnectDisconnect.setText("Connect");
                 btnSaveData.setText("Save");
                 resetData();
+            }
+        });
+        btnSendTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mService != null) {
+                    mService.writeRXCharacteristic( saveData.getDate());
+                }
             }
         });
     }
@@ -293,6 +303,8 @@ public class MainActivity extends AppCompatActivity
                         if(!isSaving) {Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG).show();}
                         mState = UART_PROFILE_CONNECTED;
 
+
+
                     }
                 });
             }
@@ -306,7 +318,6 @@ public class MainActivity extends AppCompatActivity
                         if(!isSaving) {Toast.makeText(getApplicationContext(), "Disconnected", Toast.LENGTH_LONG).show();}
                         mService.close();mState = UART_PROFILE_DISCONNECTED;
                         isRunning = false;
-
                     }
                 });
             }
@@ -315,18 +326,23 @@ public class MainActivity extends AppCompatActivity
             //*********************//
             if (action.equals(UartService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 mService.enableTXNotification();
+                Log.i(TAG, "onReceive: ACTION_GATT_SERVICES_DISCOVERED");
+                dialogMode();
+
             }
+
             //*********************//
             // ham nay la ham nhan a xu l
             if (action.equals(UartService.ACTION_DATA_AVAILABLE)) {
                 txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
 
-                // firstDataBuffer = new double[3000];
+                   //firstDataBuffer = new double[3000];
 
 
-                for (int i = 0; i < 10; i++) {
-                    emg[i] = (txValue[i*4+2]&0xff&0x3f) + (txValue[i*4+3]&0xff&0x3f)*64;
+                for (int i = 0; i < 20; i++) {
+                    emg[i] = (txValue[i*2]&0xff&0x3f) + (txValue[i*2+1]&0xff&0x3f)*64;
 
+                    //emg[i] = (txValue[i*4+2]&0xff&0x3f) + (txValue[i*4+3]&0xff&0x3f)*64;
                     // for 50Hz filter
                     /*filter_input1 = filter.update_input_filter_array50Hz(filter_input1, emg[i]);
                     double filtered_point_emg = filter.filter50Hz(filter_input1, filter_output1);
@@ -355,8 +371,11 @@ public class MainActivity extends AppCompatActivity
                     data1Save.add(emg[i]);
                     lastX1=lastX1 + 1/fs;
                     series_maternal.appendData(new DataPoint(lastX1,emg[i]), true, 10000);
-                    Log.d(TAG, lastX1++ + ", " + emg[i]);
+                    Log.d(TAG, lastX1 + ", " + emg[i]);
+                    lastX1++;
                 }
+
+
             }
             //*********************//
             if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)){
@@ -644,6 +663,40 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /* Dialog to choose mode for testing: Realtime or Pilot mode */
+    public void dialogMode() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.mode_options);
+        Window window = dialog.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        TextView realtimeMode = dialog.findViewById(R.id.realtimeMode);
+        TextView pilotMode = dialog.findViewById(R.id.pilotMode);
+        realtimeMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mService != null) {
+                    mService.writeRXCharacteristic("r");
+                    Log.i(TAG, "onClick: Plot real-time signal");
+                    dialog.dismiss();
+                    mode = "realtime";
+                }
+            }
+        });
+        pilotMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mService != null) {
+                    mService.writeRXCharacteristic("p"+saveData.getDate());
+                    Log.i(TAG, "onClick: Pilot Mode");
+                    dialog.dismiss();
+                }
+            }
+        });
+    }
+
+    /*Dialog to choose testee and sensor */
     public void showdialog() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_info_saved);
