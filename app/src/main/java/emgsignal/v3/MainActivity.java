@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity
 
 
                 for (int i = 0; i < 20; i++) {
-                    emg[i] = (txValue[i*2]&0xff&0x3f) + (txValue[i*2+1]&0xff&0x3f)*64;
+                    emg[i] = ((txValue[i*2]&0xff&0x3f) + (txValue[i*2+1]&0xff&0x3f)*64)*0.87890625;
 
                     //emg[i] = (txValue[i*4+2]&0xff&0x3f) + (txValue[i*4+3]&0xff&0x3f)*64;
                     // for 50Hz filter
@@ -367,15 +367,12 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG, lastX1++ + ", " + filter_out_putpoint_envelope);*/
                     /*data1Save.add(filter_out_putpoint_envelope);
                     EMG_series.add(filter_out_putpoint_envelope);*/
-
                     data1Save.add(emg[i]);
                     lastX1=lastX1 + 1/fs;
                     series_maternal.appendData(new DataPoint(lastX1,emg[i]), true, 10000);
                     Log.d(TAG, lastX1 + ", " + emg[i]);
                     lastX1++;
                 }
-
-
             }
             //*********************//
             if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)){
